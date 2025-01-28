@@ -1,3 +1,4 @@
+
 import streamlit as st
 import json
 import os
@@ -7,18 +8,26 @@ from gpt_handler import GPTHandler
 from workflow_manager import WorkflowManager
 from help import show_help
 
+# Configure the Streamlit page with wide layout and collapsed sidebar
 st.set_page_config(
     page_title="PromptFlow",
     layout="wide",
     initial_sidebar_state="collapsed"
 )
 
-# Load custom CSS
+# Load and apply custom CSS styles for the application
 with open('style.css') as f:
     st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
 
 def create_loading_spinner(message):
-    """Creates a custom loading spinner with progress animation"""
+    """Creates a custom loading spinner with animated progress bar
+    
+    Args:
+        message (str): Message to display during loading
+        
+    Returns:
+        container: Streamlit container object containing the spinner
+    """
     spinner_container = st.empty()
     with spinner_container.container():
         st.markdown(
@@ -36,16 +45,22 @@ def create_loading_spinner(message):
     return spinner_container
 
 def initialize_session_state():
+    """Initialize all required session state variables if they don't exist"""
+    # Document-related state
     if 'current_document' not in st.session_state:
         st.session_state.current_document = None
     if 'current_document_text' not in st.session_state:
         st.session_state.current_document_text = None
+        
+    # Core managers state
     if 'prompt_manager' not in st.session_state:
         st.session_state.prompt_manager = PromptManager()
     if 'workflow_manager' not in st.session_state:
         st.session_state.workflow_manager = WorkflowManager()
     if 'gpt_handler' not in st.session_state:
         st.session_state.gpt_handler = GPTHandler()
+        
+    # Prompt and workflow management state
     if 'selected_prompts' not in st.session_state:
         st.session_state.selected_prompts = []
     if 'last_results' not in st.session_state:
@@ -64,18 +79,21 @@ def initialize_session_state():
         st.session_state.test_results = {}
 
 def reset_prompt_editing():
+    """Reset all prompt editing related session state variables"""
     st.session_state.editing_prompt = {}
     st.session_state.current_edits = {}
     st.session_state.test_results = {}
 
 def show_workflow_tab():
+    """Display and handle the workflow management interface"""
     st.header("Workflows")
 
-    # Create Workflow button
+    # Create new workflow button
     if st.button("➕ Create Workflow", type="primary"):
         st.session_state.current_workflow = "new"
         st.rerun()
 
+    # New workflow creation interface
     if st.session_state.current_workflow == "new":
         name_col, button_col = st.columns([3, 1])
         with name_col:
@@ -103,6 +121,7 @@ def show_workflow_tab():
         st.subheader("Available Workflows")
 
         for workflow in workflows:
+            # Create a row for each workflow with action buttons
             col1, col2, col3, col4 = st.columns([3, 1, 1, 1])
 
             with col1:
@@ -145,7 +164,11 @@ def show_workflow_tab():
             show_workflow_results(st.session_state.current_workflow)
 
 def show_workflow_testing(workflow_name):
-    """Interface for testing and refining workflow prompts"""
+    """Interface for testing and refining workflow prompts
+    
+    Args:
+        workflow_name (str): Name of the workflow being tested
+    """
     workflow = st.session_state.workflow_manager.get_workflow(workflow_name)
     if not workflow:
         st.error("Workflow not found")
@@ -153,11 +176,12 @@ def show_workflow_testing(workflow_name):
 
     st.header(f"Test & Refine: {workflow['name']}")
 
+    # Test each prompt in the workflow
     for idx, prompt_data in enumerate(workflow['prompts']):
         with st.expander(f"📝 {prompt_data['name']}", expanded=True):
             st.subheader(prompt_data['name'])
 
-            # Current prompt
+            # Display current prompt
             st.markdown("#### Current Prompt")
             st.code(prompt_data['prompt'])
 
@@ -170,6 +194,7 @@ def show_workflow_testing(workflow_name):
                 height=100
             )
 
+            # Test buttons for original and edited versions
             col1, col2 = st.columns(2)
 
             with col1:
@@ -192,19 +217,19 @@ def show_workflow_testing(workflow_name):
                 if st.button("🔄 Test Changes", key=f"test_changes_{idx}"):
                     spinner = create_loading_spinner("Testing changes...")
                     try:
-                        new_result = st.session_state.gpt_handler.process_document(
+                        result = st.session_state.gpt_handler.process_document(
                             st.session_state.current_document_text,
                             edited_prompt,
                             st.session_state.prompt_manager.get_system_prompt()
                         )
                         spinner.empty()
-                        st.session_state.test_results[f"edited_{prompt_data['name']}"] = new_result
+                        st.session_state.test_results[f"edited_{prompt_data['name']}"] = result
                         st.rerun()
                     except Exception as e:
                         spinner.empty()
                         st.error(f"Error testing changes: {str(e)}")
 
-            # Show results if available
+            # Display test results comparison
             original_key = f"original_{prompt_data['name']}"
             edited_key = f"edited_{prompt_data['name']}"
 
@@ -226,7 +251,7 @@ def show_workflow_testing(workflow_name):
                     else:
                         st.info("Not tested yet")
 
-                # Save changes button - only show if we have test results for the edited version
+                # Save/Discard buttons for edited version
                 if edited_key in st.session_state.test_results:
                     col1, col2 = st.columns(2)
                     with col1:
@@ -239,7 +264,6 @@ def show_workflow_testing(workflow_name):
                             if st.session_state.workflow_manager.update_workflow_prompt(
                                 workflow_name, idx, updated_prompt
                             ):
-                                # Clear test results after saving
                                 if original_key in st.session_state.test_results:
                                     del st.session_state.test_results[original_key]
                                 if edited_key in st.session_state.test_results:
@@ -249,76 +273,18 @@ def show_workflow_testing(workflow_name):
 
                     with col2:
                         if st.button("❌ Discard Changes", key=f"discard_{idx}", type="secondary"):
-                            # Clear test results and rerun to reset the interface
                             if original_key in st.session_state.test_results:
                                 del st.session_state.test_results[original_key]
                             if edited_key in st.session_state.test_results:
                                 del st.session_state.test_results[edited_key]
                             st.rerun()
 
-def show_workflow_results(workflow_name):
-    """Interface for running workflow and showing formatted results"""
-    workflow = st.session_state.workflow_manager.get_workflow(workflow_name)
-    if not workflow:
-        st.error("Workflow not found")
-        return
-
-    st.header(f"Results: {workflow['name']}")
-
-    # Run all prompts
-    results = {}
-    total_prompts = len(workflow['prompts'])
-
-    for idx, prompt_data in enumerate(workflow['prompts'], 1):
-        spinner = create_loading_spinner(
-            f"Processing {prompt_data['name']} ({idx}/{total_prompts})"
-        )
-        try:
-            result = st.session_state.gpt_handler.process_document(
-                st.session_state.current_document_text,
-                prompt_data['prompt'],
-                st.session_state.prompt_manager.get_system_prompt()
-            )
-            results[prompt_data['name']] = result
-            spinner.empty()
-        except Exception as e:
-            spinner.empty()
-            st.error(f"Error processing {prompt_data['name']}: {str(e)}")
-
-    # Display individual prompt results
-    st.markdown("### Individual Prompt Results")
-    for prompt_name, result in results.items():
-        with st.expander(f"📄 {prompt_name}", expanded=False):
-            st.write(result)
-
-    # Generate templated output if template exists
-    if workflow.get("template"):
-        st.markdown("---")
-        st.markdown("### Generated Document")
-
-        # Process template
-        output_content = workflow["template"]
-        for prompt_name, result in results.items():
-            marker = f"{{{prompt_name}_OUTPUT}}"
-            output_content = output_content.replace(marker, result)
-
-        # Display processed template
-        if workflow.get("output_format", "markdown") == "markdown":
-            st.markdown(output_content)
-        else:
-            st.markdown(output_content, unsafe_allow_html=True)
-
-        # Download button
-        extension = ".md" if workflow.get("output_format", "markdown") == "markdown" else ".html"
-        st.download_button(
-            label="📥 Download Document",
-            data=output_content,
-            file_name=f"{workflow['name']}_output{extension}",
-            mime="text/markdown" if extension == ".md" else "text/html"
-        )
-
-
 def show_workflow_editor(workflow_name):
+    """Interface for editing workflow configuration
+    
+    Args:
+        workflow_name (str): Name of the workflow being edited
+    """
     workflow = st.session_state.workflow_manager.get_workflow(workflow_name)
     if not workflow:
         st.error("Workflow not found")
@@ -335,6 +301,7 @@ def show_workflow_editor(workflow_name):
 
         col1, col2 = st.columns(2)
 
+        # Library prompts column
         with col1:
             st.markdown("#### Select from Library")
             library_prompts = st.session_state.prompt_manager.get_prompts()
@@ -350,6 +317,7 @@ def show_workflow_editor(workflow_name):
                         st.success(f"Added '{prompt['Name']}' to workflow")
                         st.rerun()
 
+        # New prompt creation column
         with col2:
             st.markdown("#### Create New Prompt")
             new_prompt_name = st.text_input("Prompt Name", key="new_prompt_name")
@@ -377,11 +345,9 @@ def show_workflow_editor(workflow_name):
         if workflow['prompts']:
             for idx, prompt_data in enumerate(workflow['prompts']):
                 with st.expander(f"{prompt_data['name']}", expanded=False):
-                    # Original prompt
                     st.markdown("#### Current Prompt")
                     st.markdown(f"```\n{prompt_data['prompt']}\n```")
 
-                    # Test prompt
                     if st.button("Test Prompt", key=f"test_{idx}"):
                         if not st.session_state.current_document:
                             st.warning("Please upload a document first")
@@ -402,6 +368,7 @@ def show_workflow_editor(workflow_name):
         else:
             st.info("No prompts added to this workflow yet")
 
+    # Template tab
     with template_tab:
         st.markdown("### Document Template")
 
@@ -434,7 +401,7 @@ def show_workflow_editor(workflow_name):
             )
 
             if template_content:
-                # Preview
+                # Preview section
                 st.markdown("#### Preview")
                 preview_content = template_content
                 for prompt in workflow['prompts']:
@@ -451,7 +418,7 @@ def show_workflow_editor(workflow_name):
                     else:
                         st.markdown(preview_content, unsafe_allow_html=True)
 
-                # Save button
+                # Save template button
                 if st.button("💾 Save Template", type="primary"):
                     if st.session_state.workflow_manager.update_workflow_template(
                         workflow_name,
@@ -473,7 +440,11 @@ def show_workflow_editor(workflow_name):
                 st.rerun()
 
 def show_workflow_results(workflow_name):
-    """Interface for running workflow and showing formatted results"""
+    """Display results from running a workflow
+    
+    Args:
+        workflow_name (str): Name of the workflow being run
+    """
     workflow = st.session_state.workflow_manager.get_workflow(workflow_name)
     if not workflow:
         st.error("Workflow not found")
@@ -481,7 +452,7 @@ def show_workflow_results(workflow_name):
 
     st.header(f"Results: {workflow['name']}")
 
-    # Run all prompts
+    # Process all prompts in workflow
     results = {}
     total_prompts = len(workflow['prompts'])
 
@@ -501,18 +472,18 @@ def show_workflow_results(workflow_name):
             spinner.empty()
             st.error(f"Error processing {prompt_data['name']}: {str(e)}")
 
-    # Display individual prompt results
+    # Display individual results
     st.markdown("### Individual Prompt Results")
     for prompt_name, result in results.items():
         with st.expander(f"📄 {prompt_name}", expanded=False):
             st.write(result)
 
-    # Generate templated output if template exists
+    # Generate template output if available
     if workflow.get("template"):
         st.markdown("---")
         st.markdown("### Generated Document")
 
-        # Process template
+        # Process template with results
         output_content = workflow["template"]
         for prompt_name, result in results.items():
             marker = f"{{{prompt_name}_OUTPUT}}"
@@ -524,7 +495,7 @@ def show_workflow_results(workflow_name):
         else:
             st.markdown(output_content, unsafe_allow_html=True)
 
-        # Download button
+        # Add download button
         extension = ".md" if workflow.get("output_format", "markdown") == "markdown" else ".html"
         st.download_button(
             label="📥 Download Document",
@@ -533,17 +504,18 @@ def show_workflow_results(workflow_name):
             mime="text/markdown" if extension == ".md" else "text/html"
         )
 
-
 def main():
+    """Main application entry point"""
     initialize_session_state()
 
     st.title("PromptFlow")
 
-    # Updated top-level tabs with Help
+    # Main application tabs
     tabs = ["Document", "Prompt Library", "Workflows", "Help"]
     active_tab = st.tabs(tabs)
 
-    with active_tab[0]:  # Document Tab
+    # Document Tab
+    with active_tab[0]:
         col1, col2 = st.columns([1, 2])
         with col1:
             st.header("Upload Document")
@@ -560,6 +532,7 @@ def main():
                     st.session_state.current_document = None
                     st.session_state.current_document_text = None
 
+        # Display document content if available
         if st.session_state.current_document and st.session_state.current_document_text:
             with col2:
                 st.header("Document Content")
@@ -569,11 +542,13 @@ def main():
             with col2:
                 st.warning("Please ensure you've uploaded a valid Word document (.docx format)")
 
-    with active_tab[1]:  # Prompt Library Tab
+    # Prompt Library Tab
+    with active_tab[1]:
         if not st.session_state.current_document:
             st.warning("Please upload a document first")
         else:
             if not st.session_state.show_create_prompt:
+                # System prompt section
                 st.header("System Prompt")
                 current_system_prompt = st.session_state.prompt_manager.get_system_prompt()
 
@@ -583,6 +558,7 @@ def main():
                         st.session_state.editing_system_prompt = not st.session_state.editing_system_prompt
                         st.rerun()
 
+                # Display or edit system prompt
                 if not st.session_state.editing_system_prompt:
                     st.code(current_system_prompt)
                 else:
@@ -601,19 +577,21 @@ def main():
                             else:
                                 st.error("Failed to update system prompt")
 
+                # Available prompts section
                 st.header("Available Prompts")
 
                 if st.button("➕ Create New Prompt", type="primary", key="create_new_prompt_btn"):
                     st.session_state.show_create_prompt = True
                     st.rerun()
 
+                # Display existing prompts
                 prompts = st.session_state.prompt_manager.get_prompts()
 
                 for prompt in prompts:
                     with st.expander(f"📝 {prompt['Name']}", expanded=True):
                         st.subheader(prompt['Name'])
 
-                        # Current prompt
+                        # Current prompt display
                         st.markdown("#### Current Prompt")
                         st.code(prompt['Prompt'])
 
@@ -626,6 +604,7 @@ def main():
                             height=100
                         )
 
+                        # Test buttons
                         col1, col2 = st.columns(2)
                         with col1:
                             if st.button("🔄 Test Original", key=f"test_original_{prompt['Name']}"):
@@ -659,7 +638,7 @@ def main():
                                     spinner.empty()
                                     st.error(f"Error testing edited version: {str(e)}")
 
-                        # Show results if available
+                        # Display test results
                         original_key = f"original_{prompt['Name']}"
                         edited_key = f"edited_{prompt['Name']}"
 
@@ -681,7 +660,7 @@ def main():
                                 else:
                                     st.info("Not tested yet")
 
-                            # Save/Discard buttons - only show if we have test results for the edited version
+                            # Save/Discard changes buttons
                             if edited_key in st.session_state.test_results:
                                 col1, col2 = st.columns(2)
                                 with col1:
@@ -691,7 +670,6 @@ def main():
                                             prompt['Description'],
                                             edited_prompt
                                         )
-                                        # Clear test results after saving
                                         if original_key in st.session_state.test_results:
                                             del st.session_state.test_results[original_key]
                                         if edited_key in st.session_state.test_results:
@@ -701,7 +679,6 @@ def main():
 
                                 with col2:
                                     if st.button("❌ Discard Changes", key=f"discard_{prompt['Name']}", type="secondary"):
-                                        # Clear test results and rerun to reset the interface
                                         if original_key in st.session_state.test_results:
                                             del st.session_state.test_results[original_key]
                                         if edited_key in st.session_state.test_results:
@@ -714,6 +691,7 @@ def main():
                             st.rerun()
 
             else:
+                # Create new prompt interface
                 st.header("Create New Prompt")
 
                 if st.button("← Back to Prompt Library"):
@@ -735,10 +713,12 @@ def main():
                     else:
                         st.error("Please provide both name and prompt text")
 
-    with active_tab[2]:  # Workflows Tab
+    # Workflows Tab
+    with active_tab[2]:
         show_workflow_tab()
 
-    with active_tab[3]:  # Help Tab
+    # Help Tab
+    with active_tab[3]:
         show_help()
 
 if __name__ == "__main__":

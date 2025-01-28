@@ -1,0 +1,30 @@
+{
+    "system_prompt": "You are a highly skilled legal document analyzer. Always be precise and thorough in your analysis. Base your responses solely on the provided document content.",
+    "prompts": [
+        {
+            "Name": "Extract Key Terms",
+            "Description": "Extracts the key terms and conditions from a legal document",
+            "Prompt": "Please analyze this legal document and extract the key terms and conditions. Present them in a clear, structured format with main points and sub-points."
+        },
+        {
+            "Name": "Document Summary",
+            "Description": "Provides a concise summary of the entire document",
+            "Prompt": "Please provide a concise summary of this legal document, highlighting the main purpose, key parties involved, and major obligations or rights discussed."
+        },
+        {
+            "Name": "Risk Analysis",
+            "Description": "Identifies potential risks and obligations",
+            "Prompt": "Analyze this legal document and identify potential risks, obligations, and liabilities. Present them in order of significance and explain their potential impact."
+        },
+        {
+            "Name": "Landlord name and address",
+            "Description": "Finds Landlord's name and company number",
+            "Prompt": "The lease is made between a Landlord and a Tenant. Identify the Landlord and then find the landlord's name and address. Return only the name and address in the format: '[Company Name] whose registered office is at [Address]' or '[Name] of [Address]'. If the Landlord is a company include the registered number in the format 'Company number: [number]'"
+        },
+        {
+            "Name": "Rent",
+            "Description": "Extract the rent",
+            "Prompt": "What is the rent under the lease?"
+        }
+    ]
+}

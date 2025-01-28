@@ -1,0 +1,226 @@
+/* Import Articulat CF fonts */
+@import url('https://fonts.cdnfonts.com/css/articulat-cf');
+
+/* Define custom properties for colors */
+:root {
+    --primary-dark: #1A2543;
+    --primary-green: #80C28F;
+    --primary-teal: #08B0A0;
+    --primary-blue: #00A7C5;
+    --secondary-pink: #E2345D;
+    --secondary-green: #50A036;
+    --secondary-teal: #00A291;
+    --bg-light: #F8F9FC;  /* New light background color */
+}
+
+/* Base styles */
+.stApp {
+    font-family: 'Articulat CF Light', sans-serif;
+    font-size: 9pt;
+    line-height: 1.2;
+    color: var(--primary-dark);
+    background-color: var(--bg-light) !important;
+}
+
+/* Headers */
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Articulat CF Bold', sans-serif !important;
+    margin-bottom: 0.5rem !important;
+}
+
+/* Containers and spacing */
+div[data-testid="stVerticalBlock"] > div {
+    margin-bottom: 0.25rem !important;
+}
+
+/* Text areas and inputs */
+.stTextArea textarea {
+    padding: 0.5rem !important;
+    margin-bottom: 0.25rem !important;
+    min-height: 2.5rem !important;
+    background-color: white !important;
+    border: 1px solid #E0E4EC !important;
+    border-radius: 8px !important;
+}
+
+/* Expander styling */
+div[data-testid="stExpander"] {
+    margin-bottom: 0.5rem !important;
+    background-color: white !important;
+    border-radius: 8px !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05) !important;
+}
+
+div[data-testid="stExpander"] > div:first-child {
+    color: var(--primary-dark) !important;
+    border-radius: 8px !important;
+    padding: 0.5rem 1rem !important;
+}
+
+div[data-testid="stExpander"] div[data-testid="stExpanderContent"] {
+    padding: 0.5rem !important;
+    background-color: white !important;
+}
+
+/* Remove nested box effect in workflow results */
+div[data-testid="stExpander"] .stMarkdown {
+    background-color: transparent !important;
+    box-shadow: none !important;
+    padding: 0.5rem !important;
+}
+
+/* Progress container */
+.progress-container {
+    width: 100%;
+    height: 4px;
+    background: rgba(8, 176, 160, 0.1);
+    border-radius: 2px;
+    margin: 1rem 0;
+    overflow: hidden;
+}
+
+/* Progress bar animation */
+.progress-bar {
+    width: 30%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        var(--primary-green) 0%,
+        var(--primary-teal) 50%,
+        var(--primary-blue) 100%
+    );
+    border-radius: 2px;
+    animation: progressMove 1.5s ease infinite;
+}
+
+@keyframes progressMove {
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(400%);
+    }
+}
+
+/* Pulse text animation */
+.pulse-text {
+    animation: textPulse 1.5s ease infinite;
+}
+
+@keyframes textPulse {
+    0% {
+        opacity: 0.6;
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0.6;
+    }
+}
+
+/* Spinner animation */
+.stSpinner {
+    position: relative;
+    display: inline-block;
+    width: 2.5rem;
+    height: 2.5rem;
+    margin: 1rem auto;
+}
+
+.stSpinner::before {
+    content: '';
+    box-sizing: border-box;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border: 3px solid rgba(8, 176, 160, 0.1);
+    border-top-color: var(--primary-teal);
+    border-right-color: var(--primary-blue);
+    border-radius: 50%;
+    animation: spinnerRotate 1s linear infinite;
+}
+
+@keyframes spinnerRotate {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* Add after other CSS rules */
+/* Remove box styling for workflow creation section */
+div[data-testid="stVerticalBlock"] > div:first-child .stMarkdown {
+    background-color: transparent !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+}
+
+/* Remove box styling for simple text inputs */
+.stTextInput > div[data-testid="stVerticalBlock"] > div > div {
+    background-color: transparent !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+}
+
+/* Keep input styling clean */
+.stTextInput input {
+    background-color: white !important;
+    border: 1px solid #E0E4EC !important;
+    border-radius: 8px !important;
+    padding: 0.5rem !important;
+}
+
+/* Streamlit elements spacing */
+div[data-testid="stVerticalBlock"] > div {
+    margin-bottom: 0.25rem !important;
+}
+
+
+/* Button styling */
+.stButton button {
+    padding: 0.5rem 1rem !important;
+    margin: 0.25rem 0 !important;
+}
+
+/* Select box */
+.stSelectbox {
+    margin-bottom: 0.25rem !important;
+}
+
+/* Compact containers */
+.stMarkdown {
+    margin-bottom: 0.25rem !important;
+    background-color: white !important;
+    padding: 1rem !important;
+    border-radius: 8px !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05) !important;
+}
+
+/* Make everything more compact */
+div.block-container {
+    padding-top: 1rem !important;
+    padding-bottom: 1rem !important;
+}
+
+/* Custom styling for gradient text headers */
+h1, h2, h3 {
+    background: linear-gradient(45deg, 
+        var(--primary-green) 0%, 
+        var(--primary-teal) 50%, 
+        var(--primary-blue) 100%) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+}
+
+/* Processing overlay */
+.processing-overlay {
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    margin: 1rem 0;
+}

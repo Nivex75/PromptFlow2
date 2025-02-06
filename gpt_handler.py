@@ -1,12 +1,25 @@
+
 import os
 from openai import OpenAI
 
 class GPTHandler:
     def __init__(self):
-        # the newest OpenAI model is "gpt-4o" which was released May 13, 2024.
-        # do not change this unless explicitly requested by the user
         self.model = "gpt-4o"
-        self.client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
+        
+        # Configure based on environment
+        use_azure = os.getenv('USE_AZURE_OPENAI', 'false').lower() == 'true'
+        
+        if use_azure:
+            self.client = OpenAI(
+                api_key=os.getenv('AZURE_OPENAI_API_KEY'),
+                base_url=os.getenv('AZURE_OPENAI_ENDPOINT'),
+                api_version=os.getenv('AZURE_OPENAI_API_VERSION', '2024-02-01'),
+                azure_deployed_model=os.getenv('AZURE_OPENAI_DEPLOYMENT_NAME', 'gpt-4'),
+                azure_ad_token=os.getenv('AZURE_AD_TOKEN'),  # For Azure AD authentication
+                default_headers={'Ocp-Apim-Subscription-Key': os.getenv('AZURE_OPENAI_API_KEY')}
+            )
+        else:
+            self.client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
 
     def process_document(self, document_text, prompt, system_prompt=""):
         """

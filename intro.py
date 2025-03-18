@@ -2,57 +2,79 @@ import streamlit as st
 
 def show_introduction():
     st.markdown("""
-    # Welcome to PromptFlow 👋
-    
-    PromptFlow is a powerful tool designed to streamline your legal document analysis using advanced AI technology. Think of it as your intelligent legal assistant that helps you analyze documents systematically and efficiently.
-    
-    ## How It Works 🔄
-    
+    # PromptFlow
+
+    PromptFlow helps legal professionals analyze documents systematically by creating reusable analysis workflows.
+
+    ## Core Concept
+
+    Instead of analyzing a document with a single prompt, PromptFlow lets you:
+    1. Break down analysis into specific tasks
+    2. Chain multiple prompts together
+    3. Generate structured output documents
+
+    ## How It Works
+
     1. **Upload Your Document** 📄
-       - Start by uploading any legal document (contracts, agreements, leases, etc.)
-       - The document will be processed and ready for analysis
-    
+       - Upload any legal document (.docx format)
+       - The text will be extracted automatically
+
     2. **Build Your Analysis Workflow** ⚙️
-       - Create a new workflow or use existing templates
-       - Add prompts from the library or create custom ones
-       - Each prompt focuses on extracting specific information (e.g., key terms, obligations, parties)
-    
-    3. **Test and Refine** 🔍
-       - Test individual prompts to see results immediately
-       - Compare different versions of prompts
-       - Iterate and refine until you get the desired output
-    
-    4. **Generate Complete Analysis** 📊
-       - Run your entire workflow
-       - Get structured results
-       - Download formatted reports
-    
+       - Create a workflow with multiple prompts
+       - Each prompt focuses on a specific aspect
+       - Example chain:
+         1. First prompt extracts party details
+         2. Second prompt identifies key dates
+         3. Third prompt analyzes obligations
+         4. Fourth prompt assesses risks
+       - Test and refine each prompt individually
+       - Results from earlier prompts inform later ones
+
+    3. **Create Output Templates** 📋
+       - Design document templates that combine all results
+       - Use markers to insert prompt outputs:
+         - Format: `{PROMPT_NAME_OUTPUT}`
+         - Example: `{Extract Parties_OUTPUT}` inserts the party details
+       - Templates can be in Markdown or HTML format
+       - Download the final document when complete
+
     ## Example Workflow: Lease Agreement Analysis
-    
-    Here's a practical example:
-    1. Upload a lease agreement
-    2. Add prompts to extract:
-       - Landlord and tenant details
-       - Key dates and terms
-       - Rent and payment terms
-       - Special conditions
-    3. Test each prompt and refine
-    4. Generate a complete analysis report
-    
-    ## Benefits 🌟
-    
-    - **Save Time**: Automate repetitive document review tasks
-    - **Ensure Consistency**: Use standardized prompts across similar documents
-    - **Improve Accuracy**: Refine prompts based on actual results
-    - **Flexible Analysis**: Customize workflows for different document types
-    
-    ## Ready to Start? 🚀
-    
-    1. Go to the 'Document' tab to upload your first document
-    2. Visit the 'Prompt Library' to explore available prompts
-    3. Create a workflow in the 'Workflows' tab
-    
-    Need help? Check out our detailed guide in the 'Help' tab!
+
+    Here's how a lease analysis workflow works:
+
+    1. **Individual Prompts**:
+       ```
+       Prompt 1: "Landlord Details"
+       {Extract party information about the landlord}
+
+       Prompt 2: "Key Dates"
+       {Find lease start, end, and critical dates}
+
+       Prompt 3: "Payment Terms"
+       {Extract rent amounts and payment schedules}
+       ```
+
+    2. **Template Using Results**:
+       ```markdown
+       # Lease Analysis Report
+
+       ## Landlord Information
+       {Landlord Details_OUTPUT}
+
+       ## Key Dates
+       {Key Dates_OUTPUT}
+
+       ## Payment Structure
+       {Payment Terms_OUTPUT}
+       ```
+
+    ## Getting Started
+
+    1. Go to the 'Document' tab → Upload your document
+    2. Visit 'Workflows' tab → Create a new workflow
+    3. Add prompts and test each one
+    4. Create a template using the prompt markers
+    5. Run the complete workflow to generate your document
     """)
 
 if __name__ == "__main__":

@@ -1,4 +1,3 @@
-
 import streamlit as st
 import json
 import os
@@ -7,6 +6,7 @@ from document_processor import DocumentProcessor
 from gpt_handler import GPTHandler
 from workflow_manager import WorkflowManager
 from help import show_help
+from intro import show_introduction
 
 # Configure the Streamlit page with wide layout and collapsed sidebar
 st.set_page_config(
@@ -508,7 +508,8 @@ def main():
     """Main application entry point"""
     initialize_session_state()
 
-    st.title("PromptFlow")
+    show_introduction()
+    st.markdown("---")  # Add separator between intro and main content
 
     # Main application tabs
     tabs = ["Document", "Prompt Library", "Workflows", "Help"]

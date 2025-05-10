@@ -519,8 +519,8 @@ def main():
     with active_tab[0]:
         col1, col2 = st.columns([1, 2])
         with col1:
-            st.header("Upload Document")
-            uploaded_file = st.file_uploader("Upload a Word document", type=['docx'])
+            st.header("Upload a Word or PDF Document")
+            uploaded_file = st.file_uploader("Upload a Word or PDF document", type=['docx', 'pdf'])
 
             if uploaded_file:
                 try:

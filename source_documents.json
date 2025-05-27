@@ -1,0 +1,74 @@
+{
+    "documents": [
+        {
+            "id": "20250527_113010_448618_5217",
+            "name": "Fake 35 (1)",
+            "description": "",
+            "original_filename": "Fake 35 (1).docx",
+            "stored_filename": "20250527_113010_448618_5217_Fake_35_(1).docx",
+            "file_path": "source_documents/20250527_113010_448618_5217_Fake_35_(1).docx",
+            "text_path": "source_documents/20250527_113010_448618_5217_Fake_35_(1).txt",
+            "uploaded_at": "2025-05-27T11:30:10.451762",
+            "file_size": 42605,
+            "file_type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            "text_length": 29208,
+            "preview": "        Dated          \t\t\t\t\t 2017\t\n------------\nLease\nrelating to\nWatermoor Lodge, Lewis Lane, Stroud, GL5 1QG\nbetween\nStroud Deaf Trust \n(Landlord)\nand\nStroud West College \n(Tenant)\nContents\nClause\nAppendix\nThis lease is dated\t\t\t\t\t2017\nParties\nStroud Deaf Trust incorporated and registered in England and Wales with company number 05737205 and charity number 1006748 whose registered office is at Lewis Lane, Stroud, GL5 1QG (Landlord)\nDoncaster College, a further education corporation and exempt c..."
+        },
+        {
+            "id": "20250527_113050_519255_5421",
+            "name": "Fake 35 (1)",
+            "description": "Stroudwater Lease",
+            "original_filename": "Fake 35 (1).docx",
+            "stored_filename": "20250527_113050_519255_5421_Fake_35_(1).docx",
+            "file_path": "source_documents/20250527_113050_519255_5421_Fake_35_(1).docx",
+            "text_path": "source_documents/20250527_113050_519255_5421_Fake_35_(1).txt",
+            "uploaded_at": "2025-05-27T11:30:50.520772",
+            "file_size": 42605,
+            "file_type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            "text_length": 29208,
+            "preview": "        Dated          \t\t\t\t\t 2017\t\n------------\nLease\nrelating to\nWatermoor Lodge, Lewis Lane, Stroud, GL5 1QG\nbetween\nStroud Deaf Trust \n(Landlord)\nand\nStroud West College \n(Tenant)\nContents\nClause\nAppendix\nThis lease is dated\t\t\t\t\t2017\nParties\nStroud Deaf Trust incorporated and registered in England and Wales with company number 05737205 and charity number 1006748 whose registered office is at Lewis Lane, Stroud, GL5 1QG (Landlord)\nDoncaster College, a further education corporation and exempt c..."
+        },
+        {
+            "id": "20250527_172630_95526_5324",
+            "name": "Test Lease",
+            "description": "Sample lease for testing",
+            "original_filename": "Fake 35.docx",
+            "stored_filename": "20250527_172630_95526_5324_Test_Lease.docx",
+            "file_path": "source_documents/20250527_172630_95526_5324_Test_Lease.docx",
+            "text_path": "source_documents/20250527_172630_95526_5324_Test_Lease.txt",
+            "uploaded_at": "2025-05-27T17:26:30.097359",
+            "file_size": 42605,
+            "file_type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            "text_length": 29241,
+            "preview": "        Dated          \t\t\t\t\t 2017\t\n------------\nLease\nrelating to\nWatermoor Lodge, Lewis Lane, Stroud, GL5 1QG\nbetween\nStroud Deaf Trust \n(Landlord)\nand\nStroud West College \n(Tenant)\nContents\nClause\nAppendix\nThis lease is dated\t\t\t\t\t2017\nParties\nStroud Deaf Trust incorporated and registered in England and Wales with company number 05737205 and charity number 1006748 whose registered office is at Lewis Lane, Stroud, GL5 1QG (Landlord)\nDoncaster College, a further education corporation and exempt c..."
+        },
+        {
+            "id": "20250527_172636_264032_7191",
+            "name": "Test Lease",
+            "description": "Sample lease for testing",
+            "original_filename": "Fake 35.docx",
+            "stored_filename": "20250527_172636_264032_7191_Test_Lease.docx",
+            "file_path": "source_documents/20250527_172636_264032_7191_Test_Lease.docx",
+            "text_path": "source_documents/20250527_172636_264032_7191_Test_Lease.txt",
+            "uploaded_at": "2025-05-27T17:26:36.265615",
+            "file_size": 42605,
+            "file_type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            "text_length": 29241,
+            "preview": "        Dated          \t\t\t\t\t 2017\t\n------------\nLease\nrelating to\nWatermoor Lodge, Lewis Lane, Stroud, GL5 1QG\nbetween\nStroud Deaf Trust \n(Landlord)\nand\nStroud West College \n(Tenant)\nContents\nClause\nAppendix\nThis lease is dated\t\t\t\t\t2017\nParties\nStroud Deaf Trust incorporated and registered in England and Wales with company number 05737205 and charity number 1006748 whose registered office is at Lewis Lane, Stroud, GL5 1QG (Landlord)\nDoncaster College, a further education corporation and exempt c..."
+        },
+        {
+            "id": "20250527_172726_159247_6926",
+            "name": "Attachment 3 - Conveyance08081933SY746593pdf-V1(26212750.1)",
+            "description": "Sample lease for testing",
+            "original_filename": "Attachment 3 - Conveyance08081933SY746593pdf-V1(26212750.1).pdf",
+            "stored_filename": "20250527_172726_159247_6926_Attachment_3_-_Conveyance08081933SY746593pdf-V1(26212750.1).pdf",
+            "file_path": "source_documents/20250527_172726_159247_6926_Attachment_3_-_Conveyance08081933SY746593pdf-V1(26212750.1).pdf",
+            "text_path": "source_documents/20250527_172726_159247_6926_Attachment_3_-_Conveyance08081933SY746593pdf-V1(26212750.1).txt",
+            "uploaded_at": "2025-05-27T17:27:26.161708",
+            "file_size": 568403,
+            "file_type": "application/pdf",
+            "text_length": 894,
+            "preview": "Title: Official Copy (SY746593-CONVEYANCE-08 Aug 1933)\n\n\n--- Page 1 ---\n\nThese are the notes referred to on the following official copy\n \n \nTitle Number SY746593\n \nThe electronic official copy of the document follows this message.\n \nThis copy may not be the same size as the original.\n \nPlease note that this is the only official copy we will issue. We will not issue a\npaper official copy.\n\n--- Page 2 ---\n\nThis official copy is incomplete without the preceding notes page.\n\n--- Page 3 ---\n\nThis off..."
+        }
+    ]
+}

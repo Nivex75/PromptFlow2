@@ -46,10 +46,13 @@ class SourceDocumentManager:
             extracted_text = self.doc_processor.extract_text(uploaded_file)
             uploaded_file.seek(0)  # Reset again for saving
 
-            # Generate unique filename
+            # Generate unique filename with microseconds and counter for uniqueness
+            import time
+            import random
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            unique_id = f"{timestamp}_{int(time.time() * 1000000) % 1000000}_{random.randint(1000, 9999)}"
             file_extension = os.path.splitext(uploaded_file.name)[1]
-            stored_filename = f"{timestamp}_{name.replace(' ', '_')}{file_extension}"
+            stored_filename = f"{unique_id}_{name.replace(' ', '_')}{file_extension}"
             file_path = os.path.join(self.source_dir, stored_filename)
 
             # Save the original file
@@ -57,14 +60,14 @@ class SourceDocumentManager:
                 f.write(uploaded_file.getbuffer())
 
             # Save extracted text
-            text_filename = f"{timestamp}_{name.replace(' ', '_')}.txt"
+            text_filename = f"{unique_id}_{name.replace(' ', '_')}.txt"
             text_path = os.path.join(self.source_dir, text_filename)
             with open(text_path, 'w', encoding='utf-8') as f:
                 f.write(extracted_text)
 
             # Create metadata entry
             document_metadata = {
-                "id": timestamp,
+                "id": unique_id,
                 "name": name,
                 "description": description,
                 "original_filename": uploaded_file.name,

@@ -25,6 +25,34 @@ class TemplateManager:
         if not os.path.exists(self.metadata_file):
             with open(self.metadata_file, 'w') as f:
                 json.dump({"templates": []}, f)
+        else:
+            # Clean up any duplicate IDs on startup
+            self._cleanup_duplicate_ids()
+
+    def _cleanup_duplicate_ids(self):
+        """Remove any duplicate IDs that might exist from previous runs"""
+        try:
+            with open(self.metadata_file, 'r') as f:
+                data = json.load(f)
+
+            seen_ids = set()
+            cleaned_templates = []
+
+            for template in data.get("templates", []):
+                if template["id"] not in seen_ids:
+                    seen_ids.add(template["id"])
+                    cleaned_templates.append(template)
+
+            if len(cleaned_templates) < len(data.get("templates", [])):
+                data["templates"] = cleaned_templates
+                with open(self.metadata_file, 'w') as f:
+                    json.dump(data, f, indent=4)
+                print(f"Cleaned up {len(data.get('templates', [])) - len(cleaned_templates)} duplicate templates")
+        except Exception as e:
+            print(f"Error cleaning up duplicates: {e}")
+        else:
+            # Clean up any duplicate IDs on startup
+            self._cleanup_duplicate_ids()
 
     def upload_template(self, uploaded_file, name: str, description: str = "") -> Dict:
         """
@@ -39,10 +67,13 @@ class TemplateManager:
             Dict containing template metadata
         """
         try:
-            # Generate unique filename
+            # Generate unique filename with microseconds and counter for uniqueness
+            import time
+            import random
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            unique_id = f"{timestamp}_{int(time.time() * 1000000) % 1000000}_{random.randint(1000, 9999)}"
             file_extension = os.path.splitext(uploaded_file.name)[1]
-            stored_filename = f"{timestamp}_{name.replace(' ', '_')}{file_extension}"
+            stored_filename = f"{unique_id}_{name.replace(' ', '_')}{file_extension}"
             file_path = os.path.join(self.templates_dir, stored_filename)
 
             # Save the file
@@ -51,7 +82,7 @@ class TemplateManager:
 
             # Create metadata entry
             template_metadata = {
-                "id": timestamp,
+                "id": unique_id,
                 "name": name,
                 "description": description,
                 "original_filename": uploaded_file.name,
@@ -212,9 +243,10 @@ Date: [Date]"""
             }
         ]
 
-        for template in sample_templates:
+        for i, template in enumerate(sample_templates):
             # Create a temporary file-like object
             import io
+            import time
             content_bytes = template["content"].encode('utf-8')
             file_obj = io.BytesIO(content_bytes)
 
@@ -237,5 +269,7 @@ Date: [Date]"""
 
             try:
                 self.upload_template(mock_file, template["name"], template["description"])
+                # Add small delay to ensure unique timestamps
+                time.sleep(0.1)
             except:
                 pass  # Ignore if already exists

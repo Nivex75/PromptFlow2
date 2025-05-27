@@ -93,8 +93,8 @@ def show_source_documents_tab():
     # Upload section
     with st.expander("➕ Upload New Document", expanded=False):
         uploaded_file = st.file_uploader(
-            "Choose a Word document",
-            type=['docx'],
+            "Choose a Word or PDF document",
+            type=['docx', 'pdf'],
             key="source_upload"
         )
 
@@ -109,7 +109,7 @@ def show_source_documents_tab():
                 doc_description = st.text_area(
                     "Description (optional)",
                     key="source_desc",
-                    height=60
+                    height=80
                 )
 
             with col2:
@@ -214,7 +214,7 @@ def show_template_documents_tab():
                 template_description = st.text_area(
                     "Description (optional)",
                     key="template_desc",
-                    height=60
+                    height=80
                 )
 
             with col2:
@@ -288,166 +288,423 @@ def show_template_documents_tab():
         st.info("📭 No templates uploaded yet. Sample templates have been created for you!")
 
 def show_workflow_tab():
-    """Display and handle the workflow management interface"""
-    st.header("Workflows")
+    """Display the redesigned workflow management interface"""
+    st.header("⚙️ Workflows")
 
-    # Show selected documents status
-    if st.session_state.selected_source_document_id and st.session_state.selected_template_id:
-        source_doc = st.session_state.source_manager.get_document(st.session_state.selected_source_document_id)
-        template = st.session_state.template_manager.get_template(st.session_state.selected_template_id)
+    # Initialize workflow state
+    if 'workflow_step' not in st.session_state:
+        st.session_state.workflow_step = 'select'  # select, configure, review
+    if 'selected_workflow_id' not in st.session_state:
+        st.session_state.selected_workflow_id = None
+    if 'workflow_source_doc' not in st.session_state:
+        st.session_state.workflow_source_doc = None
+    if 'workflow_template' not in st.session_state:
+        st.session_state.workflow_template = None
 
-        st.success(f"""
-        ✅ **Ready to create workflow!**  
-        📄 Source: {source_doc['name'] if source_doc else 'Unknown'}  
-        📝 Template: {template['name'] if template else 'Unknown'}
-        """)
-    else:
-        missing = []
-        if not st.session_state.selected_source_document_id:
-            missing.append("source document")
-        if not st.session_state.selected_template_id:
-            missing.append("template")
+    # Step indicator
+    steps = ['1. Select Workflow', '2. Configure', '3. Run']
+    current_step = 0 if st.session_state.workflow_step == 'select' else (1 if st.session_state.workflow_step == 'configure' else 2)
 
-        if missing:
-            st.warning(f"⚠️ Please select a {' and '.join(missing)} before creating a workflow")
+    # Display step indicator
+    cols = st.columns(len(steps))
+    for i, (col, step) in enumerate(zip(cols, steps)):
+        with col:
+            if i == current_step:
+                st.info(f"**{step}**")
+            elif i < current_step:
+                st.success(f"✓ {step}")
+            else:
+                st.text(step)
 
-    # Create new workflow button
-    if st.button("➕ Create Workflow", type="primary"):
-        st.session_state.current_workflow = "new"
-        st.rerun()
+    st.markdown("---")
 
-    # New workflow creation interface
-    if st.session_state.current_workflow == "new":
-        name_col, button_col = st.columns([3, 1])
-        with name_col:
-            st.text_input("Workflow Name", placeholder="e.g., Collateral Warranty Review", key="new_workflow_name")
+    # Handle different steps
+    if st.session_state.workflow_step == 'select':
+        show_workflow_selection()
+    elif st.session_state.workflow_step == 'configure':
+        show_workflow_configuration()
+    elif st.session_state.workflow_step == 'review':
+        show_workflow_execution()
 
-        st.text_area("Description (optional)", placeholder="Describe the purpose of this workflow", key="new_workflow_desc", label_visibility="visible")
+def show_workflow_selection():
+    """Step 1: Select or create a workflow"""
 
-        if st.session_state.get("new_workflow_name"):
-            if st.button("Create", type="primary"):
-                if st.session_state.workflow_manager.create_workflow(
-                    st.session_state.new_workflow_name, 
-                    st.session_state.get("new_workflow_desc", ""),
-                    st.session_state.selected_template_id
-                ):
-                    st.success(f"Workflow '{st.session_state.new_workflow_name}' created!")
-                    st.session_state.current_workflow = st.session_state.new_workflow_name
+    # Create new workflow section
+    with st.container():
+        col1, col2 = st.columns([3, 1])
+        with col1:
+            st.subheader("Create New Workflow")
+        with col2:
+            if st.button("➕ Create New", type="primary", key="create_new_workflow_btn"):
+                st.session_state.show_create_dialog = True
+
+    # Create workflow dialog
+    if st.session_state.get('show_create_dialog'):
+        with st.container():
+            st.markdown("### New Workflow Details")
+            new_name = st.text_input("Workflow Name", key="new_workflow_name_input")
+            new_desc = st.text_area("Description (optional)", key="new_workflow_desc_input", height=80)
+
+            col1, col2 = st.columns(2)
+            with col1:
+                if st.button("Create", type="primary", key="confirm_create"):
+                    if new_name:
+                        if st.session_state.workflow_manager.create_workflow(new_name, new_desc):
+                            st.session_state.selected_workflow_id = new_name
+                            st.session_state.workflow_step = 'configure'
+                            st.session_state.show_create_dialog = False
+                            st.rerun()
+                        else:
+                            st.error("A workflow with this name already exists")
+                    else:
+                        st.error("Please enter a workflow name")
+            with col2:
+                if st.button("Cancel", key="cancel_create"):
+                    st.session_state.show_create_dialog = False
                     st.rerun()
-                else:
-                    st.error("A workflow with this name already exists")
 
-    # Display existing workflows
+    # Existing workflows section
+    st.markdown("---")
+    st.subheader("📚 Select Existing Workflow")
+
     workflows = st.session_state.workflow_manager.get_workflows()
 
     if workflows:
-        st.markdown("---")
-        st.subheader("Available Workflows")
+        # Display workflows in a grid with better information
+        for i in range(0, len(workflows), 2):
+            cols = st.columns(2)
+            for j, col in enumerate(cols):
+                if i + j < len(workflows):
+                    workflow = workflows[i + j]
+                    with col:
+                        # Create a nice card for each workflow
+                        with st.container():
+                            # Card styling
+                            st.markdown(f"""
+                            <div style="border: 2px solid #E0E4EC; border-radius: 10px; padding: 1.5rem; 
+                                        margin-bottom: 1rem; background-color: #FAFBFC;">
+                                <h4 style="margin: 0 0 0.5rem 0;">{workflow['name']}</h4>
+                                <p style="color: #666; margin: 0.5rem 0;">{workflow.get('description', 'No description')}</p>
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem;">
+                                    <span style="color: #999; font-size: 0.9em;">
+                                        Status: <strong>{workflow['status'].title()}</strong> | 
+                                        Prompts: <strong>{len(workflow.get('prompts', []))}</strong>
+                                    </span>
+                                </div>
+                            </div>
+                            """, unsafe_allow_html=True)
 
-        for workflow in workflows:
-            # Create a row for each workflow with action buttons
-            col1, col2, col3, col4 = st.columns([3, 1, 1, 1])
+                            # Action buttons
+                            col_a, col_b, col_c = st.columns(3)
+                            with col_a:
+                                if st.button("📋 Select", key=f"select_wf_{workflow['name']}", type="primary"):
+                                    st.session_state.selected_workflow_id = workflow['name']
+                                    st.session_state.workflow_step = 'configure'
+                                    st.rerun()
+                            with col_b:
+                                if st.button("✏️ Edit", key=f"quick_edit_{workflow['name']}"):
+                                    st.session_state.workflow_mode = "edit"
+                                    st.session_state.current_workflow = workflow['name']
+                                    st.rerun()
+                            with col_c:
+                                if st.button("🗑️ Delete", key=f"delete_wf_{workflow['name']}"):
+                                    if st.session_state.workflow_manager.delete_workflow(workflow['name']):
+                                        st.success(f"Deleted '{workflow['name']}'")
+                                        st.rerun()
+    else:
+        st.info("No workflows created yet. Click 'Create New' to get started!")
 
-            with col1:
-                st.write(f"**{workflow['name']}**")
-                if workflow['description']:
-                    st.caption(workflow['description'])
-                st.caption(f"Status: {workflow['status'].title()}")
+def show_workflow_configuration():
+    """Step 2: Configure workflow with source document and template"""
 
-                # Show associated template
-                if workflow.get('template_id'):
-                    template = st.session_state.template_manager.get_template(workflow['template_id'])
-                    if template:
-                        st.caption(f"📝 Template: {template['name']}")
-
-            with col2:
-                if st.button("✏️ Edit", key=f"edit_{workflow['name']}"):
-                    st.session_state.workflow_mode = "edit"
-                    st.session_state.current_workflow = workflow['name']
-                    st.rerun()
-
-            with col3:
-                if st.button("🔄 Test", key=f"test_{workflow['name']}"):
-                    if not st.session_state.selected_source_document_id:
-                        st.warning("Please select a source document first")
-                    else:
-                        st.session_state.workflow_mode = "test"
-                        st.session_state.current_workflow = workflow['name']
-                        st.rerun()
-
-            with col4:
-                if st.button("▶️ Run", key=f"run_{workflow['name']}"):
-                    if not st.session_state.selected_source_document_id:
-                        st.warning("Please select a source document first")
-                    else:
-                        st.session_state.workflow_mode = "run"
-                        st.session_state.current_workflow = workflow['name']
-                        st.rerun()
-
-    # Show appropriate interface based on mode
-    if hasattr(st.session_state, 'workflow_mode') and st.session_state.current_workflow:
-        if st.session_state.workflow_mode == "edit":
-            show_workflow_editor(st.session_state.current_workflow)
-        elif st.session_state.workflow_mode == "test":
-            show_workflow_testing(st.session_state.current_workflow)
-        elif st.session_state.workflow_mode == "run":
-            show_workflow_results_enhanced(st.session_state.current_workflow)
-
-def show_workflow_results_enhanced(workflow_name):
-    """Enhanced workflow results that uses the template system"""
-    workflow = st.session_state.workflow_manager.get_workflow(workflow_name)
+    workflow = st.session_state.workflow_manager.get_workflow(st.session_state.selected_workflow_id)
     if not workflow:
         st.error("Workflow not found")
         return
 
-    st.header(f"Results: {workflow['name']}")
+    # Header with back button
+    col1, col2 = st.columns([4, 1])
+    with col1:
+        st.subheader(f"Configure: {workflow['name']}")
+    with col2:
+        if st.button("← Back", key="back_to_selection"):
+            st.session_state.workflow_step = 'select'
+            st.rerun()
 
-    # Process workflow with template
-    spinner = create_loading_spinner("Processing workflow...")
-    try:
-        result = st.session_state.workflow_manager.process_workflow_with_template(
-            workflow_name,
-            st.session_state.selected_source_document_id,
-            st.session_state.template_manager,
-            st.session_state.source_manager,
-            st.session_state.gpt_handler,
-            st.session_state.prompt_manager
-        )
-        spinner.empty()
+    # Show workflow details
+    with st.expander("ℹ️ Workflow Details", expanded=False):
+        st.write(f"**Description:** {workflow.get('description', 'No description')}")
+        st.write(f"**Status:** {workflow['status'].title()}")
+        st.write(f"**Prompts:** {len(workflow.get('prompts', []))}")
+        if workflow.get('prompts'):
+            st.write("**Prompt Names:**")
+            for prompt in workflow['prompts']:
+                st.write(f"- {prompt['name']}")
 
-        if "error" in result:
-            st.error(result["error"])
-            return
+    st.markdown("---")
 
-        # Display individual results
-        st.markdown("### Individual Prompt Results")
-        for marker, content in result['results'].items():
-            prompt_name = marker.replace('_OUTPUT', '').replace('_', ' ').title()
-            with st.expander(f"📄 {prompt_name}", expanded=False):
-                st.write(content)
+    # Document selection
+    col1, col2 = st.columns(2)
 
-        # Display populated template
-        st.markdown("---")
-        st.markdown("### Generated Document")
+    with col1:
+        st.markdown("### 📄 Select Source Document")
 
-        # Show the populated content
-        if result['format'] == 'markdown':
-            st.markdown(result['content'])
+        source_docs = st.session_state.source_manager.get_documents()
+        if source_docs:
+            # Create a nice selector
+            doc_options = ["Select a document..."] + [f"{doc['name']} ({doc['uploaded_at'][:10]})" for doc in source_docs]
+            doc_values = [None] + [doc['id'] for doc in source_docs]
+
+            selected_idx = 0
+            if st.session_state.workflow_source_doc:
+                try:
+                    selected_idx = doc_values.index(st.session_state.workflow_source_doc)
+                except ValueError:
+                    pass
+
+            selected = st.selectbox(
+                "Choose document to analyze",
+                options=doc_options,
+                index=selected_idx,
+                key="source_doc_selector"
+            )
+
+            if selected != "Select a document...":
+                doc_id = doc_values[doc_options.index(selected)]
+                st.session_state.workflow_source_doc = doc_id
+
+                # Show preview
+                doc = st.session_state.source_manager.get_document(doc_id)
+                if doc:
+                    with st.container():
+                        st.markdown(f"""
+                        <div style="background-color: #F0F8FF; padding: 1rem; border-radius: 5px; margin-top: 0.5rem;">
+                            <strong>Selected:</strong> {doc['name']}<br>
+                            <small>Size: {doc['file_size'] // 1024}KB | 
+                            Length: {doc['text_length']} chars</small>
+                        </div>
+                        """, unsafe_allow_html=True)
         else:
-            st.markdown(result['content'], unsafe_allow_html=True)
+            st.warning("No source documents available. Please upload documents in the Source Documents tab.")
 
-        # Download button
-        extension = ".md" if result['format'] == "markdown" else ".html"
-        st.download_button(
-            label="📥 Download Document",
-            data=result['content'],
-            file_name=f"{workflow['name']}_output{extension}",
-            mime="text/markdown" if extension == ".md" else "text/html"
-        )
+    with col2:
+        st.markdown("### 📝 Select Template")
 
-    except Exception as e:
-        spinner.empty()
-        st.error(f"Error processing workflow: {str(e)}")
+        templates = st.session_state.template_manager.get_templates()
+        if templates:
+            # Create a nice selector
+            template_options = ["Select a template..."] + [f"{t['name']}" for t in templates]
+            template_values = [None] + [t['id'] for t in templates]
+
+            # Check if workflow has a default template
+            selected_idx = 0
+            if workflow.get('template_id'):
+                try:
+                    selected_idx = template_values.index(workflow['template_id'])
+                except ValueError:
+                    pass
+            elif st.session_state.workflow_template:
+                try:
+                    selected_idx = template_values.index(st.session_state.workflow_template)
+                except ValueError:
+                    pass
+
+            selected = st.selectbox(
+                "Choose output template",
+                options=template_options,
+                index=selected_idx,
+                key="template_selector"
+            )
+
+            if selected != "Select a template...":
+                template_id = template_values[template_options.index(selected)]
+                st.session_state.workflow_template = template_id
+
+                # Show preview
+                template = st.session_state.template_manager.get_template(template_id)
+                if template:
+                    markers = st.session_state.template_manager.get_template_markers(template_id)
+                    with st.container():
+                        st.markdown(f"""
+                        <div style="background-color: #F0FFF0; padding: 1rem; border-radius: 5px; margin-top: 0.5rem;">
+                            <strong>Selected:</strong> {template['name']}<br>
+                            <small>Markers: {', '.join(markers[:3]) if markers else 'None'}
+                            {'...' if len(markers) > 3 else ''}</small>
+                        </div>
+                        """, unsafe_allow_html=True)
+        else:
+            st.warning("No templates available. Please upload templates in the Template Documents tab.")
+
+    # Action buttons
+    st.markdown("---")
+
+    col1, col2, col3 = st.columns(3)
+
+    ready = st.session_state.workflow_source_doc and st.session_state.workflow_template
+
+    with col1:
+        if st.button("✏️ Edit Workflow", key="edit_workflow_btn", 
+                     help="Edit prompts and settings"):
+            st.session_state.workflow_mode = "edit"
+            st.session_state.current_workflow = workflow['name']
+            st.rerun()
+
+    with col2:
+        if st.button("🔄 Test Prompts", key="test_workflow_btn", 
+                     disabled=not st.session_state.workflow_source_doc,
+                     help="Test and refine individual prompts"):
+            if st.session_state.workflow_source_doc:
+                # Load the document text for testing
+                st.session_state.current_document_text = st.session_state.source_manager.get_document_text(
+                    st.session_state.workflow_source_doc
+                )
+                st.session_state.workflow_mode = "test"
+                st.session_state.current_workflow = workflow['name']
+                st.rerun()
+
+    with col3:
+        if st.button("▶️ Run Workflow", key="run_workflow_btn", 
+                     type="primary", 
+                     disabled=not ready,
+                     help="Process document and generate output"):
+            if ready:
+                st.session_state.workflow_step = 'review'
+                st.rerun()
+
+    if not ready:
+        st.info("👆 Please select both a source document and a template to continue")
+
+def show_workflow_execution():
+    """Step 3: Review configuration and execute workflow"""
+
+    workflow = st.session_state.workflow_manager.get_workflow(st.session_state.selected_workflow_id)
+    if not workflow:
+        st.error("Workflow not found")
+        return
+
+    # Header with back button
+    col1, col2 = st.columns([4, 1])
+    with col1:
+        st.subheader(f"Run: {workflow['name']}")
+    with col2:
+        if st.button("← Back", key="back_to_configure"):
+            st.session_state.workflow_step = 'configure'
+            st.rerun()
+
+    # Show configuration summary
+    st.markdown("### 📋 Configuration Summary")
+
+    source_doc = st.session_state.source_manager.get_document(st.session_state.workflow_source_doc)
+    template = st.session_state.template_manager.get_template(st.session_state.workflow_template)
+
+    col1, col2 = st.columns(2)
+    with col1:
+        st.markdown(f"""
+        <div style="background-color: #F0F8FF; padding: 1rem; border-radius: 8px;">
+            <h4 style="margin: 0 0 0.5rem 0;">📄 Source Document</h4>
+            <strong>{source_doc['name'] if source_doc else 'Unknown'}</strong><br>
+            <small>{source_doc['file_type'] if source_doc else ''} | 
+            {source_doc['file_size'] // 1024 if source_doc else 0}KB</small>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with col2:
+        st.markdown(f"""
+        <div style="background-color: #F0FFF0; padding: 1rem; border-radius: 8px;">
+            <h4 style="margin: 0 0 0.5rem 0;">📝 Output Template</h4>
+            <strong>{template['name'] if template else 'Unknown'}</strong><br>
+            <small>{template['description'] if template and template.get('description') else 'No description'}</small>
+        </div>
+        """, unsafe_allow_html=True)
+
+    # Run button
+    st.markdown("---")
+
+    if st.button("🚀 Execute Workflow", type="primary", use_container_width=True):
+        # Process workflow with enhanced function
+        spinner = create_loading_spinner("Processing workflow...")
+        try:
+            # Update the workflow's template if changed
+            if template and workflow.get('template_id') != st.session_state.workflow_template:
+                st.session_state.workflow_manager.update_workflow_template_id(
+                    workflow['name'], 
+                    st.session_state.workflow_template
+                )
+
+            # Use the enhanced processing function
+            result = st.session_state.workflow_manager.process_workflow_with_template(
+                workflow['name'],
+                st.session_state.workflow_source_doc,
+                st.session_state.template_manager,
+                st.session_state.source_manager,
+                st.session_state.gpt_handler,
+                st.session_state.prompt_manager
+            )
+            spinner.empty()
+
+            if "error" in result:
+                st.error(result["error"])
+                return
+
+            # Display results
+            st.success("✅ Workflow completed successfully!")
+
+            # Show individual prompt results
+            with st.expander("📊 Individual Prompt Results", expanded=False):
+                for marker, content in result['results'].items():
+                    prompt_name = marker.replace('_OUTPUT', '').replace('_', ' ').title()
+                    st.markdown(f"**{prompt_name}:**")
+                    st.write(content)
+                    st.markdown("---")
+
+            # Show populated template
+            st.markdown("### 📄 Generated Document")
+
+            # Display in a nice container
+            with st.container():
+                st.markdown("""
+                <div style="background-color: white; padding: 2rem; border-radius: 10px; 
+                            border: 1px solid #E0E4EC; margin: 1rem 0;">
+                """, unsafe_allow_html=True)
+
+                if result['format'] == 'markdown':
+                    st.markdown(result['content'])
+                else:
+                    st.markdown(result['content'], unsafe_allow_html=True)
+
+                st.markdown("</div>", unsafe_allow_html=True)
+
+            # Download button
+            col1, col2, col3 = st.columns([1, 2, 1])
+            with col2:
+                extension = ".md" if result['format'] == "markdown" else ".html"
+                st.download_button(
+                    label="📥 Download Generated Document",
+                    data=result['content'],
+                    file_name=f"{workflow['name']}_{source_doc['name']}_output{extension}",
+                    mime="text/markdown" if extension == ".md" else "text/html",
+                    use_container_width=True
+                )
+
+            # Option to run another
+            st.markdown("---")
+            col1, col2 = st.columns(2)
+            with col1:
+                if st.button("🔄 Run with Different Document", key="run_different"):
+                    st.session_state.workflow_step = 'configure'
+                    st.rerun()
+            with col2:
+                if st.button("🏠 Back to Workflows", key="back_to_start"):
+                    st.session_state.workflow_step = 'select'
+                    st.session_state.selected_workflow_id = None
+                    st.session_state.workflow_source_doc = None
+                    st.session_state.workflow_template = None
+                    st.rerun()
+
+        except Exception as e:
+            spinner.empty()
+            st.error(f"Error processing workflow: {str(e)}")
+            st.exception(e)  # For debugging
 
 # Import the remaining functions from original main.py
 def reset_prompt_editing():

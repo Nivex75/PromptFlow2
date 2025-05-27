@@ -47,7 +47,8 @@
                 }
             ],
             "template": "Dear John\n\nAs discussed I am writing to confirm the key terms of the lease and I comment as follows:\n\nThe lease is being granted by {Landlord name and address_OUTPUT}.\n\nThe lease is granted for a term of {Term_OUTPUT}.\n\n{The Premises_OUTPUT}.\n\n{Permitted Use_OUTPUT}.\n\nI will be in touch with more detail shortly.\n\nKind regards\n\n",
-            "output_format": "markdown"
+            "output_format": "markdown",
+            "template_id": "20250527_112651_32318_4180"
         },
         {
             "name": "Lease Detail",

@@ -153,3 +153,105 @@ class WorkflowManager:
                 json.dump(data, f, indent=4)
         except Exception as e:
             print(f"Error saving data: {e}")
+
+    
+
+    def create_workflow(self, name: str, description: str = "", template_id: str = None) -> bool:
+        """Create a new workflow with optional template reference"""
+        try:
+            with open(self.filename, 'r') as f:
+                data = json.load(f)
+
+            # Check if workflow with same name exists
+            if any(w["name"] == name for w in data["workflows"]):
+                return False
+
+            workflow = {
+                "name": name,
+                "description": description,
+                "created_at": datetime.now().isoformat(),
+                "status": "draft",  # draft, completed
+                "prompts": [],  # List of prompt configurations
+                "template": None,  # Template configuration (legacy)
+                "template_id": template_id,  # Reference to template document
+                "output_format": "markdown"  # markdown or html
+            }
+
+            data["workflows"].append(workflow)
+            self._save_data(data)
+            return True
+        except Exception as e:
+            print(f"Error creating workflow: {e}")
+            return False
+
+    def update_workflow_template_id(self, workflow_name: str, template_id: str) -> bool:
+        """Update a workflow's template document reference"""
+        try:
+            with open(self.filename, 'r') as f:
+                data = json.load(f)
+
+            for workflow in data["workflows"]:
+                if workflow["name"] == workflow_name:
+                    workflow["template_id"] = template_id
+                    self._save_data(data)
+                    return True
+            return False
+        except Exception as e:
+            print(f"Error updating workflow template ID: {e}")
+            return False
+
+    def process_workflow_with_template(self, workflow_name: str, source_document_id: str, 
+                                     template_manager, source_manager, gpt_handler, prompt_manager) -> Dict:
+        """
+        Process a workflow using a source document and populate a template
+
+        Returns:
+            Dict containing the populated template content and metadata
+        """
+        workflow = self.get_workflow(workflow_name)
+        if not workflow:
+            return {"error": "Workflow not found"}
+
+        # Get source document text
+        source_text = source_manager.get_document_text(source_document_id)
+        if not source_text:
+            return {"error": "Source document not found"}
+
+        # Process all prompts
+        results = {}
+        for prompt_data in workflow['prompts']:
+            try:
+                result = gpt_handler.process_document(
+                    source_text,
+                    prompt_data['prompt'],
+                    prompt_manager.get_system_prompt()
+                )
+                # Store with the marker format expected in templates
+                marker_name = f"{prompt_data['name'].upper().replace(' ', '_')}_OUTPUT"
+                results[marker_name] = result
+            except Exception as e:
+                results[f"{prompt_data['name']}_OUTPUT"] = f"Error: {str(e)}"
+
+        # Get template content
+        template_content = None
+        if workflow.get('template_id'):
+            template_content = template_manager.read_template_content(workflow['template_id'])
+        elif workflow.get('template'):
+            # Fallback to inline template
+            template_content = workflow['template']
+
+        if not template_content:
+            return {"error": "No template associated with workflow"}
+
+        # Replace markers in template
+        populated_content = template_content
+        for marker, value in results.items():
+            populated_content = populated_content.replace(f"{{{marker}}}", value)
+
+        return {
+            "content": populated_content,
+            "format": workflow.get('output_format', 'markdown'),
+            "results": results,
+            "template_id": workflow.get('template_id'),
+            "source_document_id": source_document_id
+        }

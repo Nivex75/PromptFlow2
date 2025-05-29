@@ -21,6 +21,17 @@
       "metadata": {
         "status": "active"
       }
+    },
+    {
+      "id": "proj_2ab6c1c8",
+      "name": "Aztec 3",
+      "description": "",
+      "created_at": "2025-05-29T08:36:00.540831",
+      "updated_at": "2025-05-29T08:36:00.540838",
+      "document_groups": [],
+      "metadata": {
+        "status": "active"
+      }
     }
   ]
 }

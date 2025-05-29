@@ -241,6 +241,28 @@
             "uploaded_at": "2025-05-29T08:31:22.958928",
             "file_size": 262,
             "file_type": "text/plain"
+        },
+        {
+            "id": "20250529_083553_67505_4723",
+            "name": "Lease Review Letter",
+            "description": "Standard letter template for lease reviews",
+            "original_filename": "Lease Review Letter.txt",
+            "stored_filename": "20250529_083553_67505_4723_Lease_Review_Letter.txt",
+            "file_path": "template_documents/20250529_083553_67505_4723_Lease_Review_Letter.txt",
+            "uploaded_at": "2025-05-29T08:35:53.067713",
+            "file_size": 513,
+            "file_type": "text/plain"
+        },
+        {
+            "id": "20250529_083553_168534_9745",
+            "name": "Executive Summary",
+            "description": "Concise summary for senior stakeholders",
+            "original_filename": "Executive Summary.txt",
+            "stored_filename": "20250529_083553_168534_9745_Executive_Summary.txt",
+            "file_path": "template_documents/20250529_083553_168534_9745_Executive_Summary.txt",
+            "uploaded_at": "2025-05-29T08:35:53.169078",
+            "file_size": 262,
+            "file_type": "text/plain"
         }
     ]
 }

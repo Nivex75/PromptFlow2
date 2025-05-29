@@ -46,55 +46,55 @@ def initialize_session_state():
         # Document-related state
         if 'current_document' not in st.session_state:
             st.session_state.current_document = None
-    if 'current_document_text' not in st.session_state:
-        st.session_state.current_document_text = None
-    if 'selected_source_document_id' not in st.session_state:
+        if 'current_document_text' not in st.session_state:
+            st.session_state.current_document_text = None
+        if 'selected_source_document_id' not in st.session_state:
         st.session_state.selected_source_document_id = None
-    if 'selected_template_id' not in st.session_state:
-        st.session_state.selected_template_id = None
+        if 'selected_template_id' not in st.session_state:
+            st.session_state.selected_template_id = None
 
-    # Core managers state
-    if 'prompt_manager' not in st.session_state:
-        st.session_state.prompt_manager = PromptManager()
-    if 'workflow_manager' not in st.session_state:
-        st.session_state.workflow_manager = WorkflowManager()
-    if 'gpt_handler' not in st.session_state:
-        st.session_state.gpt_handler = GPTHandler()
-    if 'template_manager' not in st.session_state:
-        st.session_state.template_manager = TemplateManager()
-    if 'source_manager' not in st.session_state:
-        st.session_state.source_manager = SourceDocumentManager()
-    if 'project_manager' not in st.session_state:
-        st.session_state.project_manager = ProjectManager()
-    if 'execution_manager' not in st.session_state:
-        st.session_state.execution_manager = ExecutionManager()
+        # Core managers state
+        if 'prompt_manager' not in st.session_state:
+            st.session_state.prompt_manager = PromptManager()
+        if 'workflow_manager' not in st.session_state:
+            st.session_state.workflow_manager = WorkflowManager()
+        if 'gpt_handler' not in st.session_state:
+            st.session_state.gpt_handler = GPTHandler()
+        if 'template_manager' not in st.session_state:
+            st.session_state.template_manager = TemplateManager()
+        if 'source_manager' not in st.session_state:
+            st.session_state.source_manager = SourceDocumentManager()
+        if 'project_manager' not in st.session_state:
+            st.session_state.project_manager = ProjectManager()
+        if 'execution_manager' not in st.session_state:
+            st.session_state.execution_manager = ExecutionManager()
 
-    # Project-related state
-    if 'current_project_id' not in st.session_state:
-        st.session_state.current_project_id = None
+        # Project-related state
+        if 'current_project_id' not in st.session_state:
+            st.session_state.current_project_id = None
 
-    # Initialize sample templates on first run
-    if 'templates_initialized' not in st.session_state:
-        st.session_state.template_manager.create_sample_templates()
-        st.session_state.templates_initialized = True
+        # Initialize sample templates on first run
+        if 'templates_initialized' not in st.session_state:
+            st.session_state.template_manager.create_sample_templates()
+            st.session_state.templates_initialized = True
 
-    # Other state variables
-    if 'selected_prompts' not in st.session_state:
-        st.session_state.selected_prompts = []
-    if 'last_results' not in st.session_state:
-        st.session_state.last_results = {}
-    if 'show_create_prompt' not in st.session_state:
-        st.session_state.show_create_prompt = False
-    if 'editing_system_prompt' not in st.session_state:
-        st.session_state.editing_system_prompt = False
-    if 'current_workflow' not in st.session_state:
-        st.session_state.current_workflow = None
-    if 'workflow_mode' not in st.session_state:
-        st.session_state.workflow_mode = None
-    if 'workflow_results' not in st.session_state:
-        st.session_state.workflow_results = {}
-    if 'test_results' not in st.session_state:
-        st.session_state.test_results = {}
+        # Other state variables
+        if 'selected_prompts' not in st.session_state:
+            st.session_state.selected_prompts = []
+        if 'last_results' not in st.session_state:
+            st.session_state.last_results = {}
+        if 'show_create_prompt' not in st.session_state:
+            st.session_state.show_create_prompt = False
+        if 'editing_system_prompt' not in st.session_state:
+            st.session_state.editing_system_prompt = False
+        if 'current_workflow' not in st.session_state:
+            st.session_state.current_workflow = None
+        if 'workflow_mode' not in st.session_state:
+            st.session_state.workflow_mode = None
+        if 'workflow_results' not in st.session_state:
+            st.session_state.workflow_results = {}
+        if 'test_results' not in st.session_state:
+            st.session_state.test_results = {}
     except Exception as e:
         st.error(f"Error initializing session state: {str(e)}")
         # Reset session state if there's an error

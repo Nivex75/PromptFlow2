@@ -97,51 +97,46 @@ def show_projects_tab():
     st.header("📁 Projects")
     st.markdown("Organize your documents and workflows by project")
 
-    # Initialize project creation expander state
-    if 'show_create_project' not in st.session_state:
-        st.session_state.show_create_project = False
-    if 'project_just_created' not in st.session_state:
-        st.session_state.project_just_created = False
-
-    # Reset expander state if project was just created
-    if st.session_state.project_just_created:
-        st.session_state.show_create_project = False
-        st.session_state.project_just_created = False
-
     # Create new project section
-    with st.expander("➕ Create New Project", expanded=st.session_state.show_create_project):
+    with st.container():
         col1, col2 = st.columns([3, 1])
         with col1:
-            project_name = st.text_input("Project Name", key="new_project_name")
+            st.subheader("Create New Project")
+        with col2:
+            if st.button("➕ Create New", type="primary", key="create_new_project_btn"):
+                st.session_state.show_create_project_dialog = True
+
+    # Create project dialog
+    if st.session_state.get('show_create_project_dialog', False):
+        with st.container():
+            st.markdown("### New Project Details")
+            project_name = st.text_input("Project Name", key="new_project_name_input")
             project_description = st.text_area(
                 "Description (optional)", 
-                key="new_project_desc",
+                key="new_project_desc_input",
                 height=80
             )
 
-        with col2:
-            st.markdown("<br>", unsafe_allow_html=True)
-            if st.button("Create", type="primary", key="create_project"):
-                if project_name:
-                    try:
-                        project = st.session_state.project_manager.create_project(
-                            project_name, 
-                            project_description
-                        )
-                        st.success(f"✅ Created project: {project['name']}")
-                        # Set flags to close the expander after successful creation
-                        st.session_state.show_create_project = False
-                        st.session_state.project_just_created = True
-                        # Clear the form inputs
-                        if 'new_project_name' in st.session_state:
-                            del st.session_state.new_project_name
-                        if 'new_project_desc' in st.session_state:
-                            del st.session_state.new_project_desc
-                        st.rerun()
-                    except Exception as e:
-                        st.error(f"Error creating project: {str(e)}")
-                else:
-                    st.error("Please enter a project name")
+            col1, col2 = st.columns(2)
+            with col1:
+                if st.button("Create", type="primary", key="confirm_create_project"):
+                    if project_name:
+                        try:
+                            project = st.session_state.project_manager.create_project(
+                                project_name, 
+                                project_description
+                            )
+                            st.success(f"✅ Created project: {project['name']}")
+                            st.session_state.show_create_project_dialog = False
+                            st.rerun()
+                        except Exception as e:
+                            st.error(f"Error creating project: {str(e)}")
+                    else:
+                        st.error("Please enter a project name")
+            with col2:
+                if st.button("Cancel", key="cancel_create_project"):
+                    st.session_state.show_create_project_dialog = False
+                    st.rerun()
 
     # Display existing projects
     st.markdown("### 📚 Your Projects")

@@ -48,7 +48,9 @@
             ],
             "template": "Dear John\n\nAs discussed I am writing to confirm the key terms of the lease and I comment as follows:\n\nThe lease is being granted by {Landlord name and address_OUTPUT}.\n\nThe lease is granted for a term of {Term_OUTPUT}.\n\n{The Premises_OUTPUT}.\n\n{Permitted Use_OUTPUT}.\n\nI will be in touch with more detail shortly.\n\nKind regards\n\n",
             "output_format": "markdown",
-            "template_id": "20250527_112651_32318_4180"
+            "template_id": "20250527_112651_32318_4180",
+            "is_global": true,
+            "project_id": null
         },
         {
             "name": "Lease Detail",
@@ -64,7 +66,9 @@
                 }
             ],
             "template": "Dear John\n\nWe agreed that I would review the lease and summarise the key terms.  I attach a copy of the lease, and I comment as follows:\n\n{Extract Key Terms_OUTPUT}\n\nIf you have any questions, please let me know.\n\nKind regards\n\n",
-            "output_format": "markdown"
+            "output_format": "markdown",
+            "is_global": true,
+            "project_id": null
         },
         {
             "name": "Michelle's lease letter",
@@ -91,7 +95,9 @@
                 }
             ],
             "template": "Dear John\n\nI am writing to let you know that I have reviewed your lease and I comment as follows:\n\n{Rent_OUTPUT}\n\nThe lease will be grated by {Landlord name and address_OUTPUT}\n\n{Lease term_OUTPUT}\n\nIf you have any questions\n",
-            "output_format": "markdown"
+            "output_format": "markdown",
+            "is_global": true,
+            "project_id": null
         },
         {
             "name": "Jonny's lease summary",
@@ -107,7 +113,9 @@
                 }
             ],
             "template": null,
-            "output_format": "markdown"
+            "output_format": "markdown",
+            "is_global": true,
+            "project_id": null
         }
     ]
 }

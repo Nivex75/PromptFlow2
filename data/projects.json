@@ -1,3 +1,15 @@
 {
-  "projects": []
+  "projects": [
+    {
+      "id": "proj_7b4ee4fa",
+      "name": "Aztec Lease Reporting",
+      "description": "",
+      "created_at": "2025-05-29T08:23:04.078078",
+      "updated_at": "2025-05-29T08:23:04.078085",
+      "document_groups": [],
+      "metadata": {
+        "status": "active"
+      }
+    }
+  ]
 }

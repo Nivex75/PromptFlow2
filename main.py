@@ -100,6 +100,13 @@ def show_projects_tab():
     # Initialize project creation expander state
     if 'show_create_project' not in st.session_state:
         st.session_state.show_create_project = False
+    if 'project_just_created' not in st.session_state:
+        st.session_state.project_just_created = False
+
+    # Reset expander state if project was just created
+    if st.session_state.project_just_created:
+        st.session_state.show_create_project = False
+        st.session_state.project_just_created = False
 
     # Create new project section
     with st.expander("➕ Create New Project", expanded=st.session_state.show_create_project):
@@ -122,8 +129,9 @@ def show_projects_tab():
                             project_description
                         )
                         st.success(f"✅ Created project: {project['name']}")
-                        # Close the expander after successful creation
+                        # Set flags to close the expander after successful creation
                         st.session_state.show_create_project = False
+                        st.session_state.project_just_created = True
                         # Clear the form inputs
                         if 'new_project_name' in st.session_state:
                             del st.session_state.new_project_name

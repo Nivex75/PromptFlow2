@@ -1,1 +1,76 @@
-{"workflows": []}
+{
+    "workflows": [
+        {
+            "name": "Lease Key Facts Extraction (Project Copy)",
+            "description": "Key summary of lease",
+            "created_at": "2025-05-29T10:31:32.647970",
+            "status": "draft",
+            "prompts": [
+                {
+                    "name": "Landlord name and address",
+                    "prompt": "The lease is made between a Landlord and a Tenant. Identify the Landlord and then find the landlord's name and address. Return only the name and address in the format: '[Company Name] whose registered office is at [Address]' or '[Name] of [Address]'. ",
+                    "type": "library"
+                },
+                {
+                    "name": "Rent",
+                    "prompt": "What is the rent under the lease?  Start your response with the amount of the rent.  Do not start your response with any extra words like \"The amount of the rent is\"",
+                    "type": "library"
+                },
+                {
+                    "name": "Term",
+                    "description": "Find term of lease",
+                    "prompt": "What is the term of the lease?",
+                    "type": "custom"
+                },
+                {
+                    "name": "The Premises",
+                    "description": "Defines the premises in the lease.",
+                    "prompt": "Review the text of the lease.  The lease is granted in respect of a defined set of Premises.  Your task is to identify this and provide a summary. Let's break down the process step-by-step: Step 1: Is the lease of a whole building, or is it only part of a building?' Step 2: If the lease is of a whole building then a) find the address of the premises b) identify if the lease refers to a plan and c) see if you can find a Land Registry title number for the the premises. Step 3: If the lease is of part of a larger building or property then you need to a) find the address of the larger building or property, b) see if you can find a Land Registry title number for the building or premises c) identify whether the presmises are defined by reference to a plan d) see if the lease contains a more detailed definition of the premises and highlight key details from this to include in your summary e) If the lease is of part of the building then the Tenant will be responsible for making a contribution to the cost of repair and maintenance to the rest of the building, via the service charge' Step 4: Once you have completed these steps then provide a short crisp description of the Premises which includes the full address. Only return this description. Do not include anything in your description which is not directly related to the definition of the Premises.  Do not include the prompt in your response. Do not include any commentary on other provisions in the lease.  Do not comment on the permitted use of the building. You will not have access to any plans.  Do no mention this. Use these examples to guide your response: EXAMPLE 1:  Here is a summary where the lease was of a whole building: 'The Premises are Unit 7, Pareto Business Park, Lewisham NB14 6PG.  The extent of the Premises is shown edged red on the plan attached to the Lease.  The Landlord's freehold interest in the premises is registered at the Land Registry with title number NGL367214.  Please check the plan carefully to ensure that it reflects the extent of the Premises which you are intending to occupy. EXAMPLE 2:  Here is a summary where the lease was of part of a larger building: 'The premises are the fifth floor of Armada House, King Street, Birmingham B1 3PD (the Building).  The extent of the premises is shown edged red on the plan attached to the lease.  It is important that you check the plan carefully to ensure that it reflects the extent of the Premises which you are intending to occupy.  In addition, the lease contains in Schedule 1 a detailed definition of what is included in the Premises' ## User Here is my lease:",
+                    "type": "custom"
+                },
+                {
+                    "name": "The Premises",
+                    "description": "Defines the premises in the lease.",
+                    "prompt": "Review the text of the lease.  The lease is granted in respect of a defined set of Premises.  Your task is to identify this and provide a summary. Let's break down the process step-by-step: Step 1: Is the lease of a whole building, or is it only part of a building?' Step 2: If the lease is of a whole building then a) find the address of the premises b) identify if the lease refers to a plan and c) see if you can find a Land Registry title number for the the premises. Step 3: If the lease is of part of a larger building or property then you need to a) find the address of the larger building or property, b) see if you can find a Land Registry title number for the building or premises c) identify whether the presmises are defined by reference to a plan d) see if the lease contains a more detailed definition of the premises and highlight key details from this to include in your summary e) If the lease is of part of the building then the Tenant will be responsible for making a contribution to the cost of repair and maintenance to the rest of the building, via the service charge' Step 4: Once you have completed these steps then provide a short crisp description of the Premises which includes the full address. Only return this description. Do not include anything in your description which is not directly related to the definition of the Premises.  Do not include the prompt in your response. Do not include any commentary on other provisions in the lease.  Do not comment on the permitted use of the building. You will not have access to any plans.  Do no mention this. Use these examples to guide your response: EXAMPLE 1:  Here is a summary where the lease was of a whole building: 'The Premises are Unit 7, Pareto Business Park, Lewisham NB14 6PG.  The extent of the Premises is shown edged red on the plan attached to the Lease.  The Landlord's freehold interest in the premises is registered at the Land Registry with title number NGL367214.  Please check the plan carefully to ensure that it reflects the extent of the Premises which you are intending to occupy. EXAMPLE 2:  Here is a summary where the lease was of part of a larger building: 'The premises are the fifth floor of Armada House, King Street, Birmingham B1 3PD (the Building).  The extent of the premises is shown edged red on the plan attached to the lease.  It is important that you check the plan carefully to ensure that it reflects the extent of the Premises which you are intending to occupy.  In addition, the lease contains in Schedule 1 a detailed definition of what is included in the Premises' ## User Here is my lease:",
+                    "type": "custom"
+                },
+                {
+                    "name": "Permitted Use",
+                    "prompt": " Extract and identify whether the lease contains Permitted use conditions and summarize for use in a wider lease report.' If there is no evidence either way, or you're unsure or the lease is not presented then, return 'Permitted use conditions not found'. The information will be used to compile a formal report on lease conditions. Do not include any unnecessary information. Do not include any other information in your response. If the lease is empty, return 'Permitted use conditions not found'. If there is no evidence either way, or you're unsure or the lease is not presented then, return 'Permitted use conditions not found'. The information will be used to compile a formal report on lease conditions. User Here is my lease report:   If you don't find any details of the permitted use at first, look for things that might indicate use like references to offices or education.",
+                    "type": "custom"
+                },
+                {
+                    "name": "Repair",
+                    "description": "Repair",
+                    "prompt": "What does the lease say about repair.  Summarise it. ",
+                    "type": "custom"
+                }
+            ],
+            "template": "Dear John\n\nAs discussed I am writing to confirm the key terms of the lease and I comment as follows:\n\nThe lease is being granted by {Landlord name and address_OUTPUT}.\n\nThe lease is granted for a term of {Term_OUTPUT}.\n\n{The Premises_OUTPUT}.\n\n{Permitted Use_OUTPUT}.\n\nI will be in touch with more detail shortly.\n\nKind regards\n\n",
+            "output_format": "markdown",
+            "template_id": "20250527_112651_32318_4180",
+            "is_global": false,
+            "project_id": "proj_a571068a",
+            "source_workflow_id": "Lease Key Facts Extraction"
+        },
+        {
+            "name": "Lease Detail (Copy)",
+            "description": "Gives all key details of the lease",
+            "created_at": "2025-05-29T10:32:13.640044",
+            "status": "draft",
+            "prompts": [
+                {
+                    "name": "Extract Key Terms",
+                    "description": "Extracts the key terms and conditions from a legal document",
+                    "prompt": "Please analyze this legal document and extract the key terms and conditions. Present them in a clear, structured format with main points and sub-points.",
+                    "type": "library"
+                }
+            ],
+            "template": "Dear John\n\nWe agreed that I would review the lease and summarise the key terms.  I attach a copy of the lease, and I comment as follows:\n\n{Extract Key Terms_OUTPUT}\n\nIf you have any questions, please let me know.\n\nKind regards\n\n",
+            "output_format": "markdown",
+            "is_global": false,
+            "project_id": "proj_a571068a",
+            "source_workflow_id": "Lease Detail"
+        }
+    ]
+}

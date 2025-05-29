@@ -57,7 +57,7 @@ class ProjectManager:
                 return project
         return None
 
-    def get_all_projects(self) -> List[Dict]:
+    def get_projects(self) -> List[Dict]:
         """Get all projects"""
         return self.projects
 

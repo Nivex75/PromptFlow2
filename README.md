@@ -1,143 +1,244 @@
-# PromptFlow - Document Analysis System Prototype
+# PromptFlow - AI-Powered Document Analysis Platform
 
-A  Python-based document analysis system that leverages GPT-4 for structured legal document processing. This prototype demonstrates a service-oriented architecture for processing legal documents through customizable prompts that build into workflows with template-based output generation.
+## 🎯 Overview
 
-## Core Features
+PromptFlow is a sophisticated document analysis system that leverages GPT-4 to process legal documents through customizable workflows. The platform features a **project-based architecture** that provides clear workspace isolation and powerful batch processing capabilities.
 
-- Document Processing: Upload and analyze Word documents
-- Prompt Library: Create, test, and manage reusable prompts
-- Workflow Management: Build custom  workflows by asembling and adapting prompts
-- GPT-4 Integration
-- Template System: Convert workflow outputs into formatted documents
+## ✨ Key Enhancements
 
-## System Architecture
+### 1. Project-Centric UI
+- **Clear Project Context**: When you're working in a project, the entire UI is focused on that project
+- **Visual Distinction**: Project workspace has a distinctive header showing you're "inside" the project
+- **Isolated Workspaces**: Each project contains its own documents, workflows, and results
+- **Easy Navigation**: Simple project switching and clear exit options
 
-### Service Components
+### 2. Batch Processing Power
+- **One-Click Processing**: "Run Workflows and Generate Results" button appears when ready
+- **Smart Detection**: Button only shows when project has both documents and workflows
+- **Progress Tracking**: Real-time progress bar with detailed status updates
+- **Error Handling**: Comprehensive error reporting for failed operations
+- **Bulk Results**: Generate multiple reports across all document-workflow combinations
 
-1. **DocumentProcessor** (`document_processor.py`)
-   - Handles DOCX parsing using python-docx
-   - Preserves document structure including tables
-   - Maintains extracted text in memory for workflow processing
+## 🏗️ Architecture
 
-2. **PromptManager** (`prompt_manager.py`)
-   - Manages prompt library and versioning
-   - JSON-based storage (`prompts.json`)
-   - Supports system and analysis prompts
-   - CRUD operations for prompt management
-
-3. **WorkflowManager** (`workflow_manager.py`)
-   - Orchestrates multi-prompt document analysis
-   - JSON-based workflow storage (`workflows.json`)
-   - Template-based output generation
-   - Workflow state management
-
-4. **GPTHandler** (`gpt_handler.py`)
-   - Manages OpenAI API interactions
-   - Processes prompts sequentially
-   - Maintains context between prompts
-   - Handles response aggregation
-
-### Template System
-
-- Document template functionality for formatted outputs
-- Supports markdown and HTML formats
-- Live preview with actual outputs
-- Template editing during review
-- Marker system using {PROMPT_NAME_OUTPUT} format
-- Needs to adap to allow download in .docx
-
-## Data Flow
+### Project Structure
 ```
-Document Upload → Document Processor → Text Extraction
-                                   ↓
-                             Memory Storage
-                                   ↓
-Workflow Execution → Prompt Processing → GPT Analysis
-                                   ↓
-                         Template Processing
-                                   ↓
-                       Formatted Output Generation
+Project
+├── Documents (Source files for analysis)
+├── Workflows (Analysis sequences)
+├── Results (Generated outputs)
+└── Templates (Shared across projects)
 ```
 
-## Data Storage Implementation
+### Key Components
 
-### Prompts (`prompts.json`)
-```json
-{
-    "system_prompt": string,
-    "prompts": [
-        {
-            "Name": string,
-            "Description": string,
-            "Prompt": string
-        }
-    ]
-}
+1. **Project Manager** (`project_manager.py`)
+   - Creates and manages project workspaces
+   - Tracks project metadata and statistics
+   - Handles project isolation
+
+2. **Document Processor** (`document_processor.py`)
+   - Supports Word (.docx) and PDF formats
+   - Robust text extraction with fallbacks
+   - Project-aware document storage
+
+3. **Workflow Manager** (`workflow_manager.py`)
+   - Project-specific workflow creation
+   - Global workflow library
+   - Import/export capabilities
+
+4. **Batch Processor** (in `main.py`)
+   - Processes all documents × all workflows
+   - Progress tracking and status updates
+   - Automatic template matching
+   - Comprehensive error handling
+
+5. **Template System** (`template_manager.py`)
+   - Marker-based content replacement
+   - Global template library
+   - Format preservation
+
+## 🚀 Getting Started
+
+### 1. Create a Project
+```python
+# From the main screen
+1. Enter project name
+2. Add optional description
+3. Click "Create Project"
 ```
 
-### Workflows (`workflows.json`)
-```json
-{
-    "name": string,
-    "description": string,
-    "created_at": ISO8601,
-    "status": "draft" | "completed",
-    "prompts": Array<PromptConfig>,
-    "template": string | null,
-    "output_format": "markdown" | "html"
-}
+### 2. Enter Project Workspace
+```python
+# Click "Open" on any project card
+# You'll see the project header with:
+- Project name and description
+- Exit button
+- Project-specific tabs
 ```
 
-## Technical Dependencies
+### 3. Upload Documents
+```python
+# In Documents tab
+1. Click "Upload New Document"
+2. Select Word or PDF files
+3. Name and describe each document
+```
 
-- streamlit==1.30.0: UI framework
-- python-docx==1.0.0: Document processing
-- openai==1.0.0: GPT-4 integration
-- JSON: Data persistence
+### 4. Create Workflows
+```python
+# In Workflows tab
+1. Click "Create New Workflow"
+2. Add prompts from library or create custom
+3. Assign output template
+4. Test individual prompts
+```
 
-## Current Technical Limitations
+### 5. Batch Process
+```python
+# When ready (documents + workflows exist)
+1. Look for "Run Workflows and Generate Results" button
+2. Click to start batch processing
+3. Monitor progress bar
+4. Check Results tab for outputs
+```
 
-1. **Processing**
-   - Single-threaded document processing
-   - In-memory document state
-   - No persistent document cache
+## 💡 Features
 
-2. **Storage**
-   - JSON-based persistence
-   - Limited concurrent access
-   - No document persistence
+### Project Management
+- Create unlimited projects
+- Visual project cards with statistics
+- Quick project switching
+- Project deletion with safety checks
 
-3. **Scalability**
-   - Limited concurrent workflow support
-   - Memory constraints for large documents
-   - No distributed processing
+### Document Handling
+- Multi-format support (DOCX, PDF)
+- Text extraction with error handling
+- Preview capabilities
+- Search functionality
+- Project-isolated storage
 
-## Implementation Notes
+### Workflow Design
+- Visual workflow builder
+- Prompt library integration
+- Custom prompt creation
+- Template assignment
+- Individual prompt testing
 
-- Built using Streamlit for rapid prototyping
-- Event-driven architecture for UI updates
-- Template-based output generation
-- Error boundary implementation
-- State isolation between components
+### Batch Processing
+- Automatic detection of readiness
+- All documents × all workflows processing
+- Real-time progress tracking
+- Error aggregation and reporting
+- Result organization by execution
 
-## Extension Points
+### Results Management
+- Chronological result listing
+- Document preview and download
+- Execution metadata tracking
+- Result deletion options
 
-1. **Document Processing**
-   - PDF support integration
-   - Document chunking implementation
-   - Enhanced formatting preservation
+## 🔧 Technical Implementation
 
-2. **Storage Layer**
-   - Database integration
-   - Document persistence
-   - Concurrent access support
+### Session State Management
+```python
+# Project context maintained throughout session
+st.session_state.current_project_id
+st.session_state.workflow_mode
+st.session_state.test_results
+```
 
-3. **Processing Engine**
-   - Distributed processing
-   - Batch document support
-   - Enhanced caching
+### Batch Processing Algorithm
+```python
+for document in project_documents:
+    for workflow in project_workflows:
+        # Process workflow against document
+        # Record results
+        # Update progress
+        # Handle errors
+```
 
-4. **Template System**
-   - Enhanced formatting options
-   - Custom styling support
-   - Multiple output formats
+### UI State Flow
+```
+Main Screen → Project Selection → Project Workspace
+                ↓                        ↓
+         Create New Project    [Documents|Workflows|Results|Templates]
+                                         ↓
+                                 Batch Process Button
+                                         ↓
+                                  Progress & Results
+```
+
+## 📊 Performance Optimizations
+
+- **Lazy Loading**: Documents loaded only when needed
+- **Progress Streaming**: Real-time updates during batch processing
+- **Error Recovery**: Continue processing despite individual failures
+- **Smart Caching**: Template and prompt results cached during session
+
+## 🎨 UI/UX Enhancements
+
+### Visual Design
+- Gradient animations for headers
+- Smooth transitions and hover effects
+- Clear visual hierarchy
+- Consistent color scheme
+- Responsive card layouts
+
+### User Feedback
+- Progress bars with percentages
+- Status messages during operations
+- Success celebrations (balloons!)
+- Clear error messages
+- Contextual help text
+
+### Navigation
+- Breadcrumb-style project context
+- Clear exit points
+- Tab-based organization
+- Quick action buttons
+- Keyboard shortcuts support
+
+## 🚦 Error Handling
+
+### Batch Processing Errors
+- Individual failure tracking
+- Aggregate error reporting
+- Continue-on-error capability
+- Detailed error messages
+
+### Document Processing Errors
+- Format validation
+- Extraction fallbacks
+- Size limit checking
+- Encoding detection
+
+## 🔒 Data Isolation
+
+- Projects are completely isolated
+- No cross-project data access
+- Separate storage paths
+- Independent workflow contexts
+
+## 📈 Future Enhancements
+
+1. **Parallel Processing**: Multi-threaded batch operations
+2. **Selective Batch**: Choose specific document-workflow pairs
+3. **Progress Persistence**: Resume interrupted batches
+4. **Export Options**: Bulk export of results
+5. **Project Templates**: Pre-configured project setups
+6. **Collaboration**: Multi-user project access
+7. **Version Control**: Track workflow and template changes
+8. **Analytics**: Processing statistics and insights
+
+## 🤝 Contributing
+
+The codebase is organized for easy extension:
+- Add new document formats in `document_processor.py`
+- Create workflow templates in `workflow_manager.py`
+- Enhance UI components in `main.py`
+- Add styling in `style.css`
+
+## 📝 License
+
+This project is provided as-is for demonstration and educational purposes.

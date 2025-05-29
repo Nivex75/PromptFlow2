@@ -263,8 +263,19 @@ def show_source_documents_tab():
 
     # Check if we're in a project context
     if not st.session_state.current_project_id:
-        st.warning("Please select a project first to manage documents")
-        if st.button("Go to Projects"):
+        st.warning("📁 **No project selected**")
+        st.markdown("""
+        To work with documents, you need to select a project first:
+        
+        1. Go to the **Projects** tab
+        2. Click **Open** on an existing project, or
+        3. Create a new project
+        
+        Once you've selected a project, you can upload and manage documents here.
+        """)
+        
+        if st.button("➡️ Go to Projects", type="primary"):
+            # This will just refresh, but the Projects tab should be the first one
             st.rerun()
         return
 

@@ -163,6 +163,8 @@ def show_projects_tab():
                                 project_description
                             )
                             st.success(f"✅ Created project: {project['name']}")
+                            # Automatically select the newly created project
+                            st.session_state.current_project_id = project['id']
                             st.session_state.show_create_project_dialog = False
                             st.rerun()
                         except Exception as e:
@@ -182,6 +184,14 @@ def show_projects_tab():
     if not projects:
         st.info("No projects yet. Create your first project above!")
     else:
+        # Show current project selection status
+        if st.session_state.current_project_id:
+            current_project = st.session_state.project_manager.get_project(st.session_state.current_project_id)
+            if current_project:
+                st.success(f"✅ Currently working in: **{current_project['name']}**")
+        else:
+            st.info("💡 Select a project to start working with documents and workflows")
+
         # Display projects in a grid
         for i in range(0, len(projects), 2):
             cols = st.columns(2)
@@ -193,10 +203,15 @@ def show_projects_tab():
                             # Update document count from source manager
                             doc_count = st.session_state.source_manager.get_project_document_count(project['id'])
                             workflow_count = len(st.session_state.workflow_manager.get_workflows(project['id']))
-
+                            
+                            # Highlight current project
+                            is_current = project['id'] == st.session_state.current_project_id
+                            border_style = "border: 3px solid #1A2543;" if is_current else "border: 1px solid #E0E4EC;"
+                            bg_color = "background-color: #F0F8FF;" if is_current else "background-color: white;"
+                            
                             st.markdown(f"""
-                            <div style="border: 1px solid #E0E4EC; border-radius: 8px; 
-                                        padding: 1rem; margin-bottom: 1rem; background-color: white;">
+                            <div style="{border_style} border-radius: 8px; 
+                                        padding: 1rem; margin-bottom: 1rem; {bg_color}">
                                 <h4 style="margin: 0 0 0.5rem 0;">{project['name']}</h4>
                                 <p style="color: #666; font-size: 0.9em; margin: 0.5rem 0;">
                                     {project.get('description', 'No description')}
@@ -211,17 +226,36 @@ def show_projects_tab():
 
                             col_a, col_b, col_c = st.columns(3)
                             with col_a:
-                                if st.button("📂 Open", key=f"open_{project['id']}", type="primary"):
+                                button_type = "secondary" if is_current else "primary"
+                                button_label = "✓ Current" if is_current else "📂 Open"
+                                if st.button(button_label, key=f"open_{project['id']}", type=button_type, disabled=is_current):
                                     st.session_state.current_project_id = project['id']
                                     st.success(f"Opened project: {project['name']}")
                                     st.rerun()
                             with col_b:
                                 if st.button("📊 Stats", key=f"stats_{project['id']}"):
-                                    st.info("Project statistics coming soon")
+                                    with st.expander("Project Statistics", expanded=True):
+                                        st.write(f"**Documents:** {doc_count}")
+                                        st.write(f"**Workflows:** {workflow_count}")
+                                        recent_execs = st.session_state.execution_manager.get_recent_executions(
+                                            limit=5, 
+                                            project_id=project['id']
+                                        )
+                                        st.write(f"**Recent Executions:** {len(recent_execs)}")
                             with col_c:
                                 if st.button("🗑️ Delete", key=f"delete_{project['id']}"):
-                                    if st.session_state.project_manager.delete_project(project['id']):
-                                        st.rerun()
+                                    if project['id'] == st.session_state.current_project_id:
+                                        st.error("Cannot delete the currently active project. Please close it first.")
+                                    else:
+                                        # Check if project has documents or workflows
+                                        if doc_count > 0 or workflow_count > 0:
+                                            st.warning(f"Project has {doc_count} documents and {workflow_count} workflows. Delete anyway?")
+                                            if st.button("Yes, Delete", key=f"confirm_delete_{project['id']}"):
+                                                if st.session_state.project_manager.delete_project(project['id']):
+                                                    st.rerun()
+                                        else:
+                                            if st.session_state.project_manager.delete_project(project['id']):
+                                                st.rerun()
 
 def show_source_documents_tab():
     """Display the source documents management interface"""

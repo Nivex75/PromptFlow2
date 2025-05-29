@@ -122,9 +122,11 @@ def show_projects_tab():
                 if st.button("Create", type="primary", key="confirm_create_project"):
                     if project_name:
                         try:
+                            # Use default description if none provided
+                            final_description = project_description.strip() if project_description.strip() else "Project"
                             project = st.session_state.project_manager.create_project(
                                 project_name, 
-                                project_description
+                                final_description
                             )
                             st.success(f"✅ Created project: {project['name']}")
                             st.session_state.show_create_project_dialog = False

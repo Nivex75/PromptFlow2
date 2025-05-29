@@ -19,8 +19,19 @@ st.set_page_config(
 )
 
 # Load and apply custom CSS styles for the application
-with open('style.css') as f:
-    st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
+try:
+    with open('style.css') as f:
+        st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
+except FileNotFoundError:
+    # Fallback CSS if style.css is missing
+    st.markdown("""
+    <style>
+    .stApp {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    </style>
+    """, unsafe_allow_html=True)
 
 def create_loading_spinner(message):
     """Creates a custom loading spinner with animated progress bar"""
@@ -229,17 +240,18 @@ def show_project_workspace():
                 <h1 style="margin: 0; color: white;">📁 {project['name']}</h1>
                 <p style="margin: 0.5rem 0 0 0; opacity: 0.9;">{project.get('description', 'No description')}</p>
             </div>
-            <button onclick="window.location.reload();" 
-                    style="background: rgba(255,255,255,0.2); border: 2px solid white; 
-                           color: white; padding: 0.5rem 1.5rem; border-radius: 10px; 
-                           cursor: pointer; font-weight: bold; transition: all 0.3s ease;"
-                    onmouseover="this.style.background='rgba(255,255,255,0.3)'"
-                    onmouseout="this.style.background='rgba(255,255,255,0.2)'">
-                ← Exit Project
-            </button>
         </div>
     </div>
     """, unsafe_allow_html=True)
+    
+    # Exit project button as Streamlit button
+    if st.button("← Exit Project", key="exit_project_header"):
+        st.session_state.current_project_id = None
+        st.session_state.workflow_step = 'select'
+        st.session_state.selected_workflow_id = None
+        st.session_state.workflow_source_doc = None
+        st.session_state.workflow_template = None
+        st.rerun()
 
     # Add the "Run Workflows and Generate Results" button if conditions are met
     doc_count = st.session_state.source_manager.get_project_document_count(project['id'])

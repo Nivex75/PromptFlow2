@@ -50,9 +50,6 @@ class TemplateManager:
                 print(f"Cleaned up {len(data.get('templates', [])) - len(cleaned_templates)} duplicate templates")
         except Exception as e:
             print(f"Error cleaning up duplicates: {e}")
-        else:
-            # Clean up any duplicate IDs on startup
-            self._cleanup_duplicate_ids()
 
     def upload_template(self, uploaded_file, name: str, description: str = "") -> Dict:
         """

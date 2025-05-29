@@ -97,8 +97,12 @@ def show_projects_tab():
     st.header("📁 Projects")
     st.markdown("Organize your documents and workflows by project")
 
+    # Initialize project creation expander state
+    if 'show_create_project' not in st.session_state:
+        st.session_state.show_create_project = False
+
     # Create new project section
-    with st.expander("➕ Create New Project", expanded=False):
+    with st.expander("➕ Create New Project", expanded=st.session_state.show_create_project):
         col1, col2 = st.columns([3, 1])
         with col1:
             project_name = st.text_input("Project Name", key="new_project_name")
@@ -118,6 +122,13 @@ def show_projects_tab():
                             project_description
                         )
                         st.success(f"✅ Created project: {project['name']}")
+                        # Close the expander after successful creation
+                        st.session_state.show_create_project = False
+                        # Clear the form inputs
+                        if 'new_project_name' in st.session_state:
+                            del st.session_state.new_project_name
+                        if 'new_project_desc' in st.session_state:
+                            del st.session_state.new_project_desc
                         st.rerun()
                     except Exception as e:
                         st.error(f"Error creating project: {str(e)}")

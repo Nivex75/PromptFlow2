@@ -32,6 +32,17 @@
       "metadata": {
         "status": "active"
       }
+    },
+    {
+      "id": "proj_fd941b1f",
+      "name": "Aztec 4",
+      "description": "",
+      "created_at": "2025-05-29T08:43:05.598209",
+      "updated_at": "2025-05-29T08:43:05.598218",
+      "document_groups": [],
+      "metadata": {
+        "status": "active"
+      }
     }
   ]
 }

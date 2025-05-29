@@ -1,0 +1,30 @@
+Dear [Client Name],
+
+Following our review of the proposed lease agreement, we set out below the key terms and our recommendations:
+
+**Landlord Details:**
+{LANDLORD_OUTPUT}
+
+**Property:**
+{PROPERTY_OUTPUT}
+
+**Lease Term:**
+{TERM_OUTPUT}
+
+**Annual Rent:**
+{RENT_OUTPUT}
+
+**Repair Obligations:**
+{REPAIR_OUTPUT}
+
+**Break Clause:**
+{BREAK_OUTPUT}
+
+**Recommendations:**
+{RECOMMENDATIONS_OUTPUT}
+
+Please let us know if you would like to discuss any of these points in more detail.
+
+Kind regards,
+[Your Name]
+[Your Firm]

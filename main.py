@@ -49,7 +49,7 @@ def initialize_session_state():
         if 'current_document_text' not in st.session_state:
             st.session_state.current_document_text = None
         if 'selected_source_document_id' not in st.session_state:
-        st.session_state.selected_source_document_id = None
+            st.session_state.selected_source_document_id = None
         if 'selected_template_id' not in st.session_state:
             st.session_state.selected_template_id = None
 

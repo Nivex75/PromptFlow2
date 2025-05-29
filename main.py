@@ -440,7 +440,7 @@ def show_workflow_selection():
                 st.session_state.show_create_dialog = True
 
     # Create workflow dialog
-    if st.session_state.get('show_create_dialog'):
+    if st.session_state.get('show_create_dialog', False):  # Added default value
         with st.container():
             st.markdown("### New Workflow Details")
             new_name = st.text_input("Workflow Name", key="new_workflow_name_input")
@@ -453,7 +453,7 @@ def show_workflow_selection():
                         if st.session_state.workflow_manager.create_workflow(new_name, new_desc):
                             st.session_state.selected_workflow_id = new_name
                             st.session_state.workflow_step = 'configure'
-                            st.session_state.show_create_dialog = False
+                            st.session_state.show_create_dialog = False  # Clear the dialog
                             st.rerun()
                         else:
                             st.error("A workflow with this name already exists")

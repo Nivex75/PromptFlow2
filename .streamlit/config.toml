@@ -1,15 +1,10 @@
+
 [server]
-headless = true
-address = "0.0.0.0"
 port = 5000
+address = "0.0.0.0"
+headless = true
+enableCORS = false
+enableWebsocketCompression = false
 
-[theme]
-# Primary colors
-primaryColor = "#1A2543"
-backgroundColor = "#FFFFFF"
-secondaryBackgroundColor = "#F0F2F6"
-textColor = "#1A2543"
-font = "sans serif"
-
-[ui]
-hideSidebarNav = true
+[browser]
+gatherUsageStats = false

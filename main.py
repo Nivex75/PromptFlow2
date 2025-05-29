@@ -42,9 +42,10 @@ def create_loading_spinner(message):
 
 def initialize_session_state():
     """Initialize all required session state variables if they don't exist"""
-    # Document-related state
-    if 'current_document' not in st.session_state:
-        st.session_state.current_document = None
+    try:
+        # Document-related state
+        if 'current_document' not in st.session_state:
+            st.session_state.current_document = None
     if 'current_document_text' not in st.session_state:
         st.session_state.current_document_text = None
     if 'selected_source_document_id' not in st.session_state:
@@ -94,6 +95,15 @@ def initialize_session_state():
         st.session_state.workflow_results = {}
     if 'test_results' not in st.session_state:
         st.session_state.test_results = {}
+    except Exception as e:
+        st.error(f"Error initializing session state: {str(e)}")
+        # Reset session state if there's an error
+        for key in list(st.session_state.keys()):
+            if key.startswith(('current_', 'selected_', 'workflow_', 'test_')):
+                try:
+                    del st.session_state[key]
+                except:
+                    pass
 
 def show_project_selection():
     """Display the project selection and management interface"""
@@ -1127,13 +1137,24 @@ def show_workflow_testing(workflow_name, project_id):
 
 def main():
     """Main application entry point"""
-    initialize_session_state()
+    try:
+        initialize_session_state()
 
-    # Show different UI based on whether a project is selected
-    if st.session_state.current_project_id:
-        show_project_workspace()
-    else:
-        show_project_selection()
+        # Show different UI based on whether a project is selected
+        if st.session_state.current_project_id:
+            show_project_workspace()
+        else:
+            show_project_selection()
+    except Exception as e:
+        st.error("Application Error")
+        st.error(f"Details: {str(e)}")
+        st.info("Try refreshing the page. If the problem persists, there may be corrupted data.")
+        
+        # Provide a reset button
+        if st.button("🔄 Reset Application State"):
+            for key in list(st.session_state.keys()):
+                del st.session_state[key]
+            st.rerun()
 
 if __name__ == "__main__":
     main()

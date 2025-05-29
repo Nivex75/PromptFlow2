@@ -1,0 +1,17 @@
+EXECUTIVE SUMMARY - LEASE ANALYSIS
+
+Property: {PROPERTY_OUTPUT}
+
+Key Terms:
+- Rent: {RENT_OUTPUT}
+- Term: {TERM_OUTPUT}
+- Break Rights: {BREAK_OUTPUT}
+
+Key Risks:
+{RISKS_OUTPUT}
+
+Recommendations:
+{RECOMMENDATIONS_OUTPUT}
+
+Prepared by: [Analyst Name]
+Date: [Date]

@@ -7,6 +7,7 @@ from gpt_handler import GPTHandler
 from workflow_manager import WorkflowManager
 from template_manager import TemplateManager
 from source_manager import SourceDocumentManager
+from project_manager import ProjectManager
 from help import show_help
 
 # Configure the Streamlit page with wide layout and collapsed sidebar
@@ -61,6 +62,12 @@ def initialize_session_state():
         st.session_state.template_manager = TemplateManager()
     if 'source_manager' not in st.session_state:
         st.session_state.source_manager = SourceDocumentManager()
+    if 'project_manager' not in st.session_state:
+        st.session_state.project_manager = ProjectManager()
+
+    # Project-related state
+    if 'current_project_id' not in st.session_state:
+        st.session_state.current_project_id = None
 
     # Initialize sample templates on first run
     if 'templates_initialized' not in st.session_state:
@@ -84,6 +91,81 @@ def initialize_session_state():
         st.session_state.workflow_results = {}
     if 'test_results' not in st.session_state:
         st.session_state.test_results = {}
+
+def show_projects_tab():
+    """Display the projects management interface"""
+    st.header("📁 Projects")
+    st.markdown("Organize your documents and workflows by project")
+
+    # Create new project section
+    with st.expander("➕ Create New Project", expanded=False):
+        col1, col2 = st.columns([3, 1])
+        with col1:
+            project_name = st.text_input("Project Name", key="new_project_name")
+            project_description = st.text_area(
+                "Description (optional)", 
+                key="new_project_desc",
+                height=80
+            )
+
+        with col2:
+            st.markdown("<br>", unsafe_allow_html=True)
+            if st.button("Create", type="primary", key="create_project"):
+                if project_name:
+                    try:
+                        project = st.session_state.project_manager.create_project(
+                            project_name, 
+                            project_description
+                        )
+                        st.success(f"✅ Created project: {project['name']}")
+                        st.rerun()
+                    except Exception as e:
+                        st.error(f"Error creating project: {str(e)}")
+                else:
+                    st.error("Please enter a project name")
+
+    # Display existing projects
+    st.markdown("### 📚 Your Projects")
+
+    projects = st.session_state.project_manager.get_projects()
+
+    if not projects:
+        st.info("No projects yet. Create your first project above!")
+    else:
+        # Display projects in a grid
+        for i in range(0, len(projects), 2):
+            cols = st.columns(2)
+            for j, col in enumerate(cols):
+                if i + j < len(projects):
+                    project = projects[i + j]
+                    with col:
+                        with st.container():
+                            st.markdown(f"""
+                            <div style="border: 1px solid #E0E4EC; border-radius: 8px; 
+                                        padding: 1rem; margin-bottom: 1rem; background-color: white;">
+                                <h4 style="margin: 0 0 0.5rem 0;">{project['name']}</h4>
+                                <p style="color: #666; font-size: 0.9em; margin: 0.5rem 0;">
+                                    {project.get('description', 'No description')}
+                                </p>
+                                <p style="color: #999; font-size: 0.8em; margin: 0;">
+                                    Created: {project['created_at'][:10]} | 
+                                    Documents: {project['metadata'].get('document_count', 0)}
+                                </p>
+                            </div>
+                            """, unsafe_allow_html=True)
+
+                            col_a, col_b, col_c = st.columns(3)
+                            with col_a:
+                                if st.button("📂 Open", key=f"open_{project['id']}", type="primary"):
+                                    st.session_state.current_project_id = project['id']
+                                    st.success(f"Opened project: {project['name']}")
+                            with col_b:
+                                if st.button("✏️ Edit", key=f"edit_{project['id']}"):
+                                    st.info("Edit functionality coming soon")
+                            with col_c:
+                                if st.button("🗑️ Delete", key=f"delete_{project['id']}"):
+                                    if st.session_state.project_manager.delete_project(project['id']):
+                                        st.rerun()
 
 def show_source_documents_tab():
     """Display the source documents management interface"""
@@ -952,23 +1034,27 @@ def main():
     st.title("PromptFlow")
 
     # Main application tabs - Updated with new structure
-    tabs = ["Source Documents", "Template Documents", "Workflows", "Prompt Library", "Help"]
+    tabs = ["Projects", "Source Documents", "Template Documents", "Workflows", "Prompt Library", "Help"]
     active_tab = st.tabs(tabs)
 
-    # Source Documents Tab
+    # Projects Tab - NEW
     with active_tab[0]:
+        show_projects_tab()
+
+    # Source Documents Tab
+    with active_tab[1]:
         show_source_documents_tab()
 
     # Template Documents Tab
-    with active_tab[1]:
+    with active_tab[2]:
         show_template_documents_tab()
 
     # Workflows Tab
-    with active_tab[2]:
+    with active_tab[3]:
         show_workflow_tab()
 
     # Prompt Library Tab (keeping original functionality)
-    with active_tab[3]:
+    with active_tab[4]:
         if not st.session_state.current_document:
             st.warning("Please select a source document first")
         else:
@@ -978,7 +1064,7 @@ def main():
             st.info("Original prompt library functionality remains available here")
 
     # Help Tab
-    with active_tab[4]:
+    with active_tab[5]:
         show_help()
 
 if __name__ == "__main__":

@@ -1329,19 +1329,29 @@ def main():
     # Show project context bar if a project is selected
     show_project_context_bar()
 
-    # Determine which tabs to show based on project context
-    if st.session_state.current_project_id:
-        # Project-specific tabs
-        tabs = ["Projects", "Documents", "Workflows", "Workflow Library", "Templates", "Results", "Help"]
-        active_tab = st.tabs(tabs)
+    # Always show all tabs, but handle project context within each tab
+    tabs = st.tabs(["Projects", "Documents", "Workflows", "Workflow Library", "Templates", "Results", "Help"])
 
-        with active_tab[0]:
-            show_projects_tab()
+    with tabs[0]:  # Projects
+        show_projects_tab()
 
-        with active_tab[1]:
+    with tabs[1]:  # Documents
+        if st.session_state.current_project_id:
             show_source_documents_tab()
+        else:
+            st.warning("📁 **No project selected**")
+            st.markdown("""
+            To work with documents, you need to select a project first:
+            
+            1. Go to the **Projects** tab
+            2. Click **Open** on an existing project, or
+            3. Create a new project
+            
+            Once you've selected a project, you can upload and manage documents here.
+            """)
 
-        with active_tab[2]:
+    with tabs[2]:  # Workflows
+        if st.session_state.current_project_id:
             # Handle workflow modes
             if st.session_state.workflow_mode == "edit" and st.session_state.current_workflow:
                 show_workflow_editor(st.session_state.current_workflow)
@@ -1349,35 +1359,40 @@ def main():
                 show_workflow_testing(st.session_state.current_workflow)
             else:
                 show_project_workflows_tab()
+        else:
+            st.warning("📁 **No project selected**")
+            st.markdown("""
+            To work with workflows, you need to select a project first:
+            
+            1. Go to the **Projects** tab
+            2. Click **Open** on an existing project, or
+            3. Create a new project
+            
+            Once you've selected a project, you can create and manage workflows here.
+            """)
 
-        with active_tab[3]:
-            show_workflow_library_tab()
+    with tabs[3]:  # Workflow Library
+        show_workflow_library_tab()
 
-        with active_tab[4]:
-            show_template_documents_tab()
+    with tabs[4]:  # Templates
+        show_template_documents_tab()
 
-        with active_tab[5]:
+    with tabs[5]:  # Results
+        if st.session_state.current_project_id:
             show_results_tab()
+        else:
+            st.warning("📁 **No project selected**")
+            st.markdown("""
+            To view results, you need to select a project first:
+            
+            1. Go to the **Projects** tab
+            2. Click **Open** on an existing project
+            
+            Once you've selected a project, you can view workflow execution results here.
+            """)
 
-        with active_tab[6]:
-            show_help()
-
-    else:
-        # No project selected - show limited tabs
-        tabs = ["Projects", "Workflow Library", "Templates", "Help"]
-        active_tab = st.tabs(tabs)
-
-        with active_tab[0]:
-            show_projects_tab()
-
-        with active_tab[1]:
-            show_workflow_library_tab()
-
-        with active_tab[2]:
-            show_template_documents_tab()
-
-        with active_tab[3]:
-            show_help()
+    with tabs[6]:  # Help
+        show_help()
 
 if __name__ == "__main__":
     main()
